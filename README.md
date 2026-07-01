@@ -1,3 +1,3 @@
-# Shofar sounds and High Holiday info 
-
-MIT © 2026 [David Patlas](https://github.com/DavidPatlas-AI)
+# שופר — Shofar Sounds & High Holiday Info
+צלילי שופר ומידע על הימים הנוראים, כולל אפליקציית בדיקת תקיעה (`shofar-checker-app.tsx`).
+**הרצה:** פתח `index.html`.
