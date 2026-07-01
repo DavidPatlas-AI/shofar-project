@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת תקיעות שופר מתקדמת</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Hebrew', 'David Libre', 'SBL Hebrew', 'Times New Roman', serif;
+            font-weight: 500;
+            background: linear-gradient(to bottom right, rgb(239 246 255), rgb(250 245 255), rgb(255 251 235));
+            min-height: 100vh;
+            padding: 1rem;
+            direction: rtl;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: rgb(30 41 59);
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.125rem;
+            color: rgb(71 85 105);
+        }
+        
+        .alert {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border-width: 1px;
+        }
+        
+        .alert-warning {
+            background-color: rgb(254 249 195);
+            border-color: rgb(252 211 77);
+            color: rgb(146 64 14);
+        }
+        
+        .alert-success {
+            background-color: rgb(220 252 231);
+            border-color: rgb(34 197 94);
+            color: rgb(21 128 61);
+        }
+        
+        .alert-info {
+            background-color: rgb(219 234 254);
+            border-color: rgb(59 130 246);
+            color: rgb(30 64 175);
+        }
+        
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .tab-button.active {
+            background-color: rgb(37 99 235);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        
+        .tab-button:not(.active) {
+            background-color: rgba(255, 255, 255, 0.7);
+            color: rgb(51 65 85);
+        }
+        
+        .tab-button:not(.active):hover {
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        .content {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        
+        .content h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rgb(30 41 59);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: rgb(51 65 85);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgb(203 213 225);
+            border-radius: 0.5rem;
+            font-family: inherit;
+            background: white;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: rgb(59 130 246);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .buttons-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .button-primary {
+            background: linear-gradient(to right, rgb(59 130 246), rgb(147 51 234));
+            color: white;
+        }
+        
+        .button-primary:hover:not(:disabled) {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            transform: scale(1.05);
+        }
+        
+        .button-primary.playing {
+            background: rgb(245 158 11);
+            animation: pulse 2s infinite;
+        }
+        
+        .button-sequence {
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: bold;
+            background: linear-gradient(to right, rgb(34 197 94), rgb(59 130 246));
+            color: white;
+        }
+        
+        .button-sequence:hover:not(:disabled) {
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            transform: scale(1.05);
+        }
+        
+        .button-sequence.playing {
+            background: rgb(239 68 68);
+            animation: pulse 2s infinite;
+        }
+        
+        .button-coach {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: bold;
+            background: linear-gradient(to right, rgb(245 158 11), rgb(251 146 60));
+            color: white;
+            margin-left: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .button-coach:hover {
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            transform: scale(1.05);
+        }
+        
+        .button-coach.active {
+            background: linear-gradient(to right, rgb(220 38 38), rgb(239 68 68));
+            transform: scale(1.05);
+        }
+        
+        .button-record {
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: bold;
+        }
+        
+        .button-record:not(.recording) {
+            background: linear-gradient(to right, rgb(239 68 68), rgb(236 72 153));
+            color: white;
+        }
+        
+        .button-record.recording {
+            background: rgb(239 68 68);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .sequence-display {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: rgb(241 245 249);
+            border-radius: 0.5rem;
+        }
+        
+        .sequence-display h3 {
+            font-weight: bold;
+            color: rgb(30 41 59);
+            margin-bottom: 0.5rem;
+        }
+        
+        .sequence-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .sequence-tag {
+            padding: 0.25rem 0.75rem;
+            background-color: rgb(219 234 254);
+            color: rgb(30 64 175);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+        
+        .debug-info {
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: rgb(107 114 128);
+            text-align: center;
+        }
+        
+        .debug-info div {
+            margin: 0.25rem 0;
+        }
+        
+        .status-indicator {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .status-loading {
+            color: rgb(217 119 6);
+            font-weight: 600;
+        }
+        
+        .status-partial {
+            color: rgb(59 130 246);
+        }
+        
+        .status-ready {
+            color: rgb(34 197 94);
+            font-weight: 600;
+        }
+        
+        .canvas-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .canvas {
+            width: 100%;
+            height: 8rem;
+            background-color: rgb(15 23 42);
+            border-radius: 0.5rem;
+        }
+        
+        .recording-time {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .recording-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: rgb(254 226 226);
+            color: rgb(153 27 27);
+            border-radius: 0.5rem;
+        }
+        
+        .analyzing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: rgb(219 234 254);
+            color: rgb(30 64 175);
+            border-radius: 0.5rem;
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .settings-panel {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            padding: 1rem;
+        }
+        
+        .settings-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .volume-slider {
+            width: 4rem;
+        }
+        
+        .lang-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .lang-select {
+            font-size: 0.875rem;
+            border: 1px solid rgb(203 213 225);
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.875rem;
+            }
+            
+            .buttons-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .button {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            
+            .settings-panel {
+                position: relative;
+                bottom: auto;
+                right: auto;
+                margin-top: 2rem;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- כותרת ראשית -->
+        <div class="header">
+            <h1 class="title">מערכת תקיעות שופר מתקדמת</h1>
+            <p class="subtitle">ניתוח אמיתי של תקיעות שופר עם קבצי MP3 אמיתיים של שופר</p>
+            
+            <!-- הודעות מערכת -->
+            <div id="systemAlert" class="alert alert-warning hidden">
+                💡 לחץ על כל כפתור כדי להפעיל את מערכת האודיו
+            </div>
+            
+            <div id="successAlert" class="alert alert-success hidden">
+                ✅ מערכת האודיו פעילה ומוכנה לשימוש!
+                <div id="audioSourceInfo" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+            </div>
+            
+            <div class="alert alert-info" style="margin-top: 1rem;">
+                <strong>💡 מידע על מקור האודיו:</strong><br>
+                המערכת תנסה לטעון קבצי MP3 אמיתיים של שופר. אם זה לא מצליח (כמו בקובץ מקומי), היא תשתמש בצלילים סינתטיים איכותיים.<br>
+                <small>🎯 כדי להשתמש בקבצי MP3 אמיתיים, יש להריץ את הקובץ משרת אינטרנט (לא מקובץ מקומי).</small>
+            </div>
+        </div>
+
+        <!-- תפריט טאבים -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="practice">
+                <span>▶️</span> תרגול
+            </button>
+            <button class="tab-button" data-tab="record">
+                <span>🎤</span> הקלטה אמיתית
+            </button>
+            <button class="tab-button" data-tab="analysis">
+                <span>📊</span> ניתוח ספקטרלי
+            </button>
+            <button class="tab-button" data-tab="results">
+                <span>🏆</span> תוצאות
+            </button>
+            <button class="tab-button" data-tab="guide">
+                <span>📚</span> מדריך
+            </button>
+        </div>
+
+        <!-- תוכן עיקרי -->
+        <div class="content">
+            
+            <!-- טאב תרגול -->
+            <div id="tab-practice" class="tab-content">
+                <h2>תרגול</h2>
+                
+                <!-- בחירת רצף -->
+                <div class="form-group">
+                    <label class="form-label">בחר רצף תקיעות:</label>
+                    <select id="sequenceSelect" class="form-select">
+                        <option value="תשרת">תקיעה-שברים-תרועה-תקיעה</option>
+                        <option value="תשת">תקיעה-שברים-תקיעה</option>
+                        <option value="תרת">תקיעה-תרועה-תקיעה</option>
+                    </select>
+                </div>
+
+                <!-- כפתורי תקיעות בודדות -->
+                <div class="buttons-grid">
+                    <button class="button button-primary" data-sound="תקיעה">
+                        תקיעה
+                    </button>
+                    <button class="button button-primary" data-sound="שברים">
+                        שברים
+                    </button>
+                    <button class="button button-primary" data-sound="תרועה">
+                        תרועה
+                    </button>
+                    <button class="button button-primary" data-sound="תקיעה גדולה">
+                        תקיעה גדולה
+                    </button>
+                </div>
+
+                <!-- נגינת רצף -->
+                <div style="text-align: center;">
+                    <button id="playSequenceBtn" class="button button-sequence">
+                        ▶️ נגן רצף
+                    </button>
+                    
+                    <button id="coachModeBtn" class="button button-coach" onclick="toggleCoachMode()">
+                        🎯 מצב מאמן
+                    </button>
+                </div>
+
+                <!-- הצגת רצף נוכחי -->
+                <div id="sequenceDisplay" class="sequence-display">
+                    <h3>רצף נוכחי: תקיעה-שברים-תרועה-תקיעה</h3>
+                    <div class="sequence-tags">
+                        <span class="sequence-tag">תקיעה</span>
+                        <span class="sequence-tag">שברים (×3)</span>
+                        <span class="sequence-tag">תרועה (×9)</span>
+                        <span class="sequence-tag">תקיעה גדולה</span>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background-color: rgb(239 246 255); border-radius: 0.25rem; border: 1px solid rgb(147 197 253);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: rgb(30 64 175);">רמת קושי:</span>
+                            <span id="difficultyDisplay" style="padding: 0.25rem 0.5rem; background-color: rgb(59 130 246); color: white; border-radius: 9999px; font-size: 0.75rem;">בינוני</span>
+                        </div>
+                        <div id="durationDisplay" style="font-size: 0.875rem; color: rgb(29 78 216); line-height: 1.4;">
+                            משך מומלץ: 15 שניות • חובה בכל בתי הכנסת
+                        </div>
+                        
+                        <!-- התקדמות משתמש -->
+                        <div id="progressDisplay" style="margin-top: 1rem; padding: 0.5rem; background-color: rgb(254 249 195); border-radius: 0.25rem; border: 1px solid rgb(252 211 77);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span style="font-weight: 600; color: rgb(146 64 14);">התקדמות:</span>
+                                <span id="masteryDisplay" style="font-size: 0.875rem; color: rgb(146 64 14);">0% שליטה</span>
+                            </div>
+                            <div style="width: 100%; height: 0.5rem; background-color: rgb(254 243 199); border-radius: 9999px; overflow: hidden;">
+                                <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(to right, rgb(34 197 94), rgb(16 185 129)); transition: width 0.3s ease;"></div>
+                            </div>
+                            <div id="bestScoreDisplay" style="font-size: 0.75rem; color: rgb(146 64 14); margin-top: 0.25rem; display: none;">שיא: 0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- מידע דיבג -->
+                <div class="debug-info">
+                    <div>AudioContext: <span id="audioContextStatus">לא זמין</span></div>
+                    <div>Buffers: <span id="buffersStatus">0/4</span></div>
+                    <div>Volume: <span id="volumeStatus">70%</span></div>
+                    
+                    <div class="status-indicator">
+                        <div id="loadingStatus" class="status-loading">טוען צלילים... אנא המתן רגע</div>
+                        <div id="partialStatus" class="status-partial hidden">נטענו <span id="partialCount">0</span> מתוך 4 צלילים</div>
+                        <div id="readyStatus" class="status-ready hidden">✓ כל הצלילים מוכנים לנגינה!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- טאב הקלטה -->
+            <div id="tab-record" class="tab-content hidden">
+                <h2>הקלטה אמיתית</h2>
+                
+                <!-- כפתור הקלטה -->
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <button id="recordBtn" class="button button-record">
+                        🎤 התחל הקלטה
+                    </button>
+                </div>
+
+                <!-- זמן הקלטה -->
+                <div id="recordingTime" class="recording-time hidden">
+                    <div class="recording-indicator">
+                        <span class="pulse-dot">🔴</span>
+                        <span id="timeDisplay">0:00</span>
+                        <span>מקליט...</span>
+                    </div>
+                </div>
+
+                <!-- וויזואליזציה -->
+                <div class="canvas-container">
+                    <canvas id="visualizer" class="canvas" width="800" height="200"></canvas>
+                </div>
+
+                <!-- סטטוס ניתוח -->
+                <div id="analyzingStatus" class="hidden" style="text-align: center; margin-bottom: 1rem;">
+                    <div class="analyzing-indicator">
+                        <span class="spinner">⚡</span>
+                        <span>מנתח תקיעות...</span>
+                    </div>
+                </div>
+
+                <!-- תוצאות ניתוח -->
+                <div id="analysisResults" class="hidden">
+                    <h3 style="font-weight: bold; color: rgb(30 41 59); margin-bottom: 0.5rem;">
+                        תוצאות ניתוח אחרונות:
+                    </h3>
+                    <div id="resultsContainer"></div>
+                </div>
+            </div>
+
+            <!-- טאב ניתוח -->
+            <div id="tab-analysis" class="tab-content hidden">
+                <h2>ניתוח ספקטרלי</h2>
+                
+                <div class="grid-2">
+                    <!-- מאפייני תקיעות -->
+                    <div style="padding: 1rem; background-color: rgb(241 245 249); border-radius: 0.5rem;">
+                        <h3 style="font-weight: bold; color: rgb(30 41 59); margin-bottom: 0.75rem;">
+                            מאפייני תקיעות שופר
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem;">
+                            <div style="padding: 0.5rem; background-color: white; border-radius: 0.25rem;">
+                                <span style="font-weight: 600; color: rgb(37 99 235);">תקיעה:</span>
+                                <div style="color: rgb(71 85 105);">צליל רציף וארוך, תדר יסודי ~415 Hz</div>
+                            </div>
+                            <div style="padding: 0.5rem; background-color: white; border-radius: 0.25rem;">
+                                <span style="font-weight: 600; color: rgb(34 197 94);">שברים:</span>
+                                <div style="color: rgb(71 85 105);">3 צלילים קצרים, תדר נמוך יותר ~380 Hz</div>
+                            </div>
+                            <div style="padding: 0.5rem; background-color: white; border-radius: 0.25rem;">
+                                <span style="font-weight: 600; color: rgb(147 51 234);">תרועה:</span>
+                                <div style="color: rgb(71 85 105);">9 צלילים קצרים מאוד, תדר גבוה ~450 Hz</div>
+                            </div>
+                            <div style="padding: 0.5rem; background-color: white; border-radius: 0.25rem;">
+                                <span style="font-weight: 600; color: rgb(239 68 68);">תקיעה גדולה:</span>
+                                <div style="color: rgb(71 85 105);">תקיעה ארוכה במיוחד, מתחזקת לסוף</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ספקטרום תדרים -->
+                    <div style="padding: 1rem; background-color: rgb(241 245 249); border-radius: 0.5rem;">
+                        <h3 style="font-weight: bold; color: rgb(30 41 59); margin-bottom: 0.75rem;">
+                            ספקטרום תדרים
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 0.25rem; background-color: rgb(59 130 246);"></div>
+                                <span style="font-size: 0.875rem;">תדר יסודי: 300-500 Hz</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 0.25rem; background-color: rgb(34 197 94);"></div>
+                                <span style="font-size: 0.875rem;">הרמוניה שנייה: 600-1000 Hz</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 0.25rem; background-color: rgb(147 51 234);"></div>
+                                <span style="font-size: 0.875rem;">הרמוניה שלישית: 900-1500 Hz</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 0.25rem; background-color: rgb(107 114 128);"></div>
+                                <span style="font-size: 0.875rem;">רעש טבעי: 50-200 Hz</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- הסבר טכני -->
+                <div style="margin-top: 1.5rem; padding: 1rem; background-color: rgb(239 246 255); border-radius: 0.5rem; border: 1px solid rgb(147 197 253);">
+                    <h4 style="font-weight: bold; color: rgb(30 64 175); margin-bottom: 0.5rem;">
+                        איך פועל הניתוח?
+                    </h4>
+                    <p style="color: rgb(29 78 216); font-size: 0.875rem; line-height: 1.6;">
+                        המערכת מבצעת ניתוח FFT (Fast Fourier Transform) על ההקלטה כדי לזהות את התדרים השולטים.
+                        לכל סוג תקיעה יש חתימה ספקטרלית ייחודית המבוססת על תדר היסוד, ההרמוניות והמאפיינים הזמניים.
+                        האלגוריתם משווה את התוצאות למאגר נתונים של תקיעות מוכרות ומחשב רמת ביטחון לכל זיהוי.
+                    </p>
+                </div>
+
+                <!-- זמני תקיעה לפי ההלכה -->
+                <div style="margin-top: 1.5rem; padding: 1rem; background-color: rgb(255 251 235); border-radius: 0.5rem; border: 1px solid rgb(252 211 77);">
+                    <h4 style="font-weight: bold; color: rgb(146 64 14); margin-bottom: 0.5rem;">
+                        ⏰ זמני תקיעה לפי ההלכה
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.875rem;">
+                        <div style="color: rgb(120 53 15);">
+                            <h5 style="font-weight: bold; margin-bottom: 0.25rem;">ראש השנה:</h5>
+                            <ul style="line-height: 1.4;">
+                                <li>• שחרית: מהנץ החמה</li>
+                                <li>• מוסף: זמן עיקרי</li>
+                                <li>• מנחה: לפני תפילה</li>
+                                <li>• ערבית: אין תוקעין</li>
+                            </ul>
+                        </div>
+                        <div style="color: rgb(120 53 15);">
+                            <h5 style="font-weight: bold; margin-bottom: 0.25rem;">יום כיפור:</h5>
+                            <ul style="line-height: 1.4;">
+                                <li>• מוצאי יום כיפור</li>
+                                <li>• אחרי תפילת ערבית</li>
+                                <li>• תקיעה אחת בלבד</li>
+                            </ul>
+                        </div>
+                        <div style="color: rgb(120 53 15);">
+                            <h5 style="font-weight: bold; margin-bottom: 0.25rem;">שבת:</h5>
+                            <ul style="line-height: 1.4;">
+                                <li>• אין תוקעין בשבת</li>
+                                <li>• חוץ מבבית כנסת</li>
+                                <li>• רק לצורך הציבור</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- טאב תוצאות -->
+            <div id="tab-results" class="tab-content hidden">
+                <h2>תוצאות</h2>
+                
+                <!-- מידע מערכת -->
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background-color: rgb(241 245 249); border-radius: 0.5rem;">
+                    <h3 style="font-weight: bold; color: rgb(30 41 59); margin-bottom: 0.75rem;">מצב מערכת</h3>
+                    <div class="grid-4" style="font-size: 0.875rem;">
+                        <div style="padding: 0.5rem; background-color: white; border-radius: 0.25rem;">
+                            <span style="font-weight: 600;">AudioContext:</span>
+                            <span id="systemAudioContext" style="margin-right: 0.5rem;">לא זמין</span>
+                        </div>
+                        <div style="padding: 0.5rem; background-color: white; border-radius: 0.25rem;">
+                            <span style="font-weight: 600;">צלילים:</span>
+                            <span id="systemBuffers" style="margin-right: 0.5rem;">0/4</span>
+                        </div>
+                        <div style="padding: 0.5rem; background-color: white; border-radius: 0.25rem;">
+                            <span style="font-weight: 600;">עוצמה:</span>
+                            <span id="systemVolume" style="margin-right: 0.5rem;">70%</span>
+                        </div>
+                        <div style="padding: 0.5rem; background-color: white; border-radius: 0.25rem;">
+                            <span style="font-weight: 600;">שפה:</span>
+                            <span>עברית</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- בדיקות מערכת -->
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background-color: rgb(239 246 255); border-radius: 0.5rem; border: 1px solid rgb(147 197 253);">
+                    <h3 style="font-weight: bold; color: rgb(30 64 175); margin-bottom: 0.75rem;">בדיקות מערכת</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Web Audio API נתמך:</span>
+                            <span id="audioApiSupport">בודק...</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>מיקרופון זמין:</span>
+                            <span id="micSupport">בודק...</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>localStorage זמין:</span>
+                            <span id="storageSupport">בודק...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- סטטיסטיקות -->
+                <div class="grid-4" style="margin-bottom: 1.5rem;">
+                    <div style="padding: 1rem; background-color: rgb(219 234 254); border-radius: 0.5rem; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: rgb(37 99 235);" id="totalPractices">0</div>
+                        <div style="font-size: 0.875rem; color: rgb(30 64 175);">סה״כ תרגולים</div>
+                    </div>
+                    <div style="padding: 1rem; background-color: rgb(220 252 231); border-radius: 0.5rem; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: rgb(34 197 94);" id="correctSequences">0</div>
+                        <div style="font-size: 0.875rem; color: rgb(21 128 61);">רצפים נכונים</div>
+                    </div>
+                    <div style="padding: 1rem; background-color: rgb(243 232 255); border-radius: 0.5rem; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: rgb(147 51 234);" id="currentStreak">0</div>
+                        <div style="font-size: 0.875rem; color: rgb(107 33 168);">רצף נוכחי</div>
+                    </div>
+                    <div style="padding: 1rem; background-color: rgb(255 251 235); border-radius: 0.5rem; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: rgb(245 158 11);" id="bestAccuracy">0%</div>
+                        <div style="font-size: 0.875rem; color: rgb(146 64 14);">דיוק מיטבי</div>
+                    </div>
+                </div>
+
+                <!-- כפתורי פעולה -->
+                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center;">
+                    <button id="activateAudioBtn" class="button" style="background-color: rgb(59 130 246); color: white;">
+                        ⚡ הפעל מערכת אודיו
+                    </button>
+                    <button id="showDebugBtn" class="button" style="background-color: rgb(147 51 234); color: white;">
+                        📊 הצג מידע דיבג
+                    </button>
+                    <button id="resetDataBtn" class="button" style="background-color: rgb(239 68 68); color: white;">
+                        🔄 איפוס נתונים
+                    </button>
+                </div>
+            </div>
+
+            <!-- טאב מדריך -->
+            <div id="tab-guide" class="tab-content hidden">
+                <h2>מדריך</h2>
+                
+                <!-- הסבר על השופר -->
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background-color: rgb(255 251 235); border-radius: 0.5rem; border: 1px solid rgb(252 211 77);">
+                    <h3 style="font-weight: bold; color: rgb(146 64 14); margin-bottom: 0.75rem;">
+                        מה זה שופר?
+                    </h3>
+                    <p style="color: rgb(120 53 15); line-height: 1.6;">
+                        השופר הוא כלי נגינה עתיק העשוי מקרן של בעל חיים כשר, בדרך כלל איל.
+                        הוא משמש במסורת היהודית בחגים ובטקסים דתיים, במיוחד בראש השנה ובמוצאי יום כיפור.
+                        לשופר ארבעה סוגי תקיעות עיקריים, כל אחד עם משמעות ומאפיינים מיוחדים.
+                    </p>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background-color: rgb(254 243 199); border-radius: 0.25rem;">
+                        <h4 style="font-weight: bold; color: rgb(146 64 14); margin-bottom: 0.5rem;">הלכות יסוד:</h4>
+                        <ul style="color: rgb(120 53 15); font-size: 0.875rem; line-height: 1.5;">
+                            <li>• מצווה מן התורה בראש השנה</li>
+                            <li>• צריך לכוון למצווה</li>
+                            <li>• השומע כיוצא ידי חובה</li>
+                            <li>• מברכים לפני התקיעות</li>
+                            <li>• יש לתקוע 100 תקיעות ביום ראש השנה</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- סוגי התקיעות -->
+                <div class="grid-2" style="margin-bottom: 1.5rem;">
+                    <div style="padding: 1rem; background-color: rgb(239 246 255); border-radius: 0.5rem; border: 1px solid rgb(147 197 253);">
+                        <h4 style="font-weight: bold; color: rgb(30 64 175); margin-bottom: 0.5rem;">תקיעה</h4>
+                        <p style="color: rgb(29 78 216); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                            צליל ארוך ורציף, מסמל קריאה לתשובה ויראת שמים
+                        </p>
+                        <div style="font-size: 0.75rem; color: rgb(37 99 235);">
+                            משך: 3-4 שניות
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 1rem; background-color: rgb(240 253 244); border-radius: 0.5rem; border: 1px solid rgb(34 197 94);">
+                        <h4 style="font-weight: bold; color: rgb(21 128 61); margin-bottom: 0.5rem;">שברים</h4>
+                        <p style="color: rgb(22 101 52); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                            שלושה צלילים קצרים, מבטאים שברון לב ובכי
+                        </p>
+                        <div style="font-size: 0.75rem; color: rgb(34 197 94);">
+                            משך: 3 צלילים של 0.6 שניות
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 1rem; background-color: rgb(250 245 255); border-radius: 0.5rem; border: 1px solid rgb(196 181 253);">
+                        <h4 style="font-weight: bold; color: rgb(107 33 168); margin-bottom: 0.5rem;">תרועה</h4>
+                        <p style="color: rgb(88 28 135); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                            תשעה צלילים קצרים מאוד, מסמלים זעקה ותרועת מלחמה
+                        </p>
+                        <div style="font-size: 0.75rem; color: rgb(147 51 234);">
+                            משך: 9 צלילים של 0.15 שניות
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 1rem; background-color: rgb(254 242 242); border-radius: 0.5rem; border: 1px solid rgb(252 165 165);">
+                        <h4 style="font-weight: bold; color: rgb(153 27 27); margin-bottom: 0.5rem;">תקיעה גדולה</h4>
+                        <p style="color: rgb(127 29 29); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                            תקיעה ארוכה במיוחד, מסמלת גאולה ותקווה
+                        </p>
+                        <div style="font-size: 0.75rem; color: rgb(239 68 68);">
+                            משך: 5+ שניות
+                        </div>
+                    </div>
+                </div>
+
+                <!-- רצפי התקיעות -->
+                <div style="padding: 1rem; background-color: rgb(241 245 249); border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                    <h3 style="font-weight: bold; color: rgb(30 41 59); margin-bottom: 0.75rem;">
+                        רצפי התקיעות המסורתיים
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div style="padding: 0.75rem; background-color: white; border-radius: 0.25rem; border: 1px solid rgb(203 213 225);">
+                            <div style="font-weight: 600; color: rgb(30 41 59); margin-bottom: 0.25rem;">
+                                תשרת: תקיעה-שברים-תרועה-תקיעה
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                <span style="padding: 0.25rem 0.5rem; background-color: rgb(219 234 254); color: rgb(30 64 175); border-radius: 9999px; font-size: 0.875rem;">תקיעה</span>
+                                <span style="padding: 0.25rem 0.5rem; background-color: rgb(219 234 254); color: rgb(30 64 175); border-radius: 9999px; font-size: 0.875rem;">שברים (×3)</span>
+                                <span style="padding: 0.25rem 0.5rem; background-color: rgb(219 234 254); color: rgb(30 64 175); border-radius: 9999px; font-size: 0.875rem;">תרועה (×9)</span>
+                                <span style="padding: 0.25rem 0.5rem; background-color: rgb(219 234 254); color: rgb(30 64 175); border-radius: 9999px; font-size: 0.875rem;">תקיעה גדולה</span>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 0.75rem; background-color: white; border-radius: 0.25rem; border: 1px solid rgb(203 213 225);">
+                            <div style="font-weight: 600; color: rgb(30 41 59); margin-bottom: 0.25rem;">
+                                תשת: תקיעה-שברים-תקיעה
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                <span style="padding: 0.25rem 0.5rem; background-color: rgb(220 252 231); color: rgb(21 128 61); border-radius: 9999px; font-size: 0.875rem;">תקיעה</span>
+                                <span style="padding: 0.25rem 0.5rem; background-color: rgb(220 252 231); color: rgb(21 128 61); border-radius: 9999px; font-size: 0.875rem;">שברים (×3)</span>
+                                <span style="padding: 0.25rem 0.5rem; background-color: rgb(220 252 231); color: rgb(21 128 61); border-radius: 9999px; font-size: 0.875rem;">תקיעה גדולה</span>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 0.75rem; background-color: white; border-radius: 0.25rem; border: 1px solid rgb(203 213 225);">
+                            <div style="font-weight: 600; color: rgb(30 41 59); margin-bottom: 0.25rem;">
+                                תרת: תקיעה-תרועה-תקיעה
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                <span style="padding: 0.25rem 0.5rem; background-color: rgb(243 232 255); color: rgb(107 33 168); border-radius: 9999px; font-size: 0.875rem;">תקיעה</span>
+                                <span style="padding: 0.25rem 0.5rem; background-color: rgb(243 232 255); color: rgb(107 33 168); border-radius: 9999px; font-size: 0.875rem;">תרועה (×9)</span>
+                                <span style="padding: 0.25rem 0.5rem; background-color: rgb(243 232 255); color: rgb(107 33 168); border-radius: 9999px; font-size: 0.875rem;">תקיעה גדולה</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- פסולי תקיעה -->
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background-color: rgb(254 242 242); border-radius: 0.5rem; border: 1px solid rgb(252 165 165);">
+                    <h3 style="font-weight: bold; color: rgb(153 27 27); margin-bottom: 0.75rem;">
+                        ❌ פסולי תקיעה
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div>
+                            <h4 style="font-weight: bold; color: rgb(153 27 27); margin-bottom: 0.5rem;">פסולי קול:</h4>
+                            <ul style="color: rgb(127 29 29); font-size: 0.875rem; line-height: 1.5;">
+                                <li>• תקיעה קצרה מדי</li>
+                                <li>• שברים מחוברים</li>
+                                <li>• תרועות איטיות מדי</li>
+                                <li>• קול נשבר או חלק</li>
+                                <li>• הפסקה ארוכה מדי</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="font-weight: bold; color: rgb(153 27 27); margin-bottom: 0.5rem;">פסולי רצף:</h4>
+                            <ul style="color: rgb(127 29 29); font-size: 0.875rem; line-height: 1.5;">
+                                <li>• שינוי סדר הקולות</li>
+                                <li>• חזרה על קול</li>
+                                <li>• חיבור בין רצפים</li>
+                                <li>• הפסקה באמצע רצף</li>
+                                <li>• שינוי מהירות</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- טיפים לשימוש -->
+                <div style="padding: 1rem; background-color: rgb(240 253 244); border-radius: 0.5rem; border: 1px solid rgb(34 197 94);">
+                    <h3 style="font-weight: bold; color: rgb(21 128 61); margin-bottom: 0.75rem;">
+                        טיפים לשימוש במערכת
+                    </h3>
+                    <ul style="list-style-type: disc; list-style-position: inside; color: rgb(22 101 52); display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem;">
+                        <li>התחל בתרגול עם תקיעות בודדות לפני מעבר לרצפים</li>
+                        <li>השתמש באוזניות לקליטה מיטבית של קבצי ה-MP3 האמיתיים של השופר</li>
+                        <li>בזמן הקלטה, החזק את המיקרופון במרחק קבוע מהשופר</li>
+                        <li>הקלט במקום שקט לתוצאות ניתוח מדויקות יותר</li>
+                        <li>השווה את ההקלטות שלך לקבצי ה-MP3 האמיתיים של השופר במערכת</li>
+                        <li>תרגל באופן קבוע לשיפור הטכניקה</li>
+                        <li>עבד על נשימה עמוקה מהבטן</li>
+                        <li>החזק את השופר יציב ונוח</li>
+                        <li>התחל בקול נמוך ועלה בהדרגה</li>
+                        <li>שמור על קצב קבוע</li>
+                    </ul>
+                </div>
+
+                <!-- ברכות התקיעה -->
+                <div style="margin-top: 1.5rem; padding: 1rem; background-color: rgb(220 252 231); border-radius: 0.5rem; border: 1px solid rgb(34 197 94);">
+                    <h3 style="font-weight: bold; color: rgb(21 128 61); margin-bottom: 0.75rem;">
+                        🙏 ברכות התקיעה
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; font-size: 0.875rem;">
+                        <div style="color: rgb(22 101 52);">
+                            <h4 style="font-weight: bold; margin-bottom: 0.5rem;">ברכה ראשונה:</h4>
+                            <div style="background-color: white; padding: 0.75rem; border-radius: 0.25rem; border: 1px solid rgb(34 197 94);">
+                                <p style="font-weight: 600; margin-bottom: 0.5rem;">ברוך אתה ה' אלוהינו מלך העולם</p>
+                                <p style="font-size: 0.875rem; line-height: 1.4;">אשר קדשנו במצוותיו וציוונו לשמוע קול שופר</p>
+                            </div>
+                        </div>
+                        <div style="color: rgb(22 101 52);">
+                            <h4 style="font-weight: bold; margin-bottom: 0.5rem;">הלכות ברכה:</h4>
+                            <ul style="line-height: 1.5;">
+                                <li>• מברכים לפני התקיעות</li>
+                                <li>• עומדים בשעת הברכה</li>
+                                <li>• מכוונים לברך</li>
+                                <li>• עונים אמן</li>
+                                <li>• אין להפסיק בין ברכה לתקיעה</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- מקורות הלכתיים -->
+                <div style="margin-top: 1.5rem; padding: 1rem; background-color: rgb(241 245 249); border-radius: 0.5rem; border: 1px solid rgb(203 213 225);">
+                    <h3 style="font-weight: bold; color: rgb(51 65 85); margin-bottom: 0.75rem;">
+                        📚 מקורות עיקריים
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.875rem;">
+                        <div style="color: rgb(71 85 105);">
+                            <h4 style="font-weight: bold; margin-bottom: 0.5rem;">משנה וגמרא:</h4>
+                            <ul style="line-height: 1.5;">
+                                <li>• משנה ראש השנה פרק ג-ד</li>
+                                <li>• גמרא ראש השנה כו.-לד.</li>
+                                <li>• מסכת סוכה</li>
+                            </ul>
+                        </div>
+                        <div style="color: rgb(71 85 105);">
+                            <h4 style="font-weight: bold; margin-bottom: 0.5rem;">פוסקים:</h4>
+                            <ul style="line-height: 1.5;">
+                                <li>• רמב"ם הלכות שופר פרק א-ג</li>
+                                <li>• שולחן ערוך אורח חיים</li>
+                                <li>• משנה ברורה</li>
+                            </ul>
+                        </div>
+                        <div style="color: rgb(71 85 105);">
+                            <h4 style="font-weight: bold; margin-bottom: 0.5rem;">סימנים:</h4>
+                            <ul style="line-height: 1.5;">
+                                <li>• סימן תקפו - הלכות שופר</li>
+                                <li>• סימן תקצט - זמני תקיעה</li>
+                                <li>• סימן תקפז - ברכות</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- פאנל הגדרות -->
+    <div class="settings-panel">
+        <div class="settings-row">
+            <!-- בקרת עוצמה -->
+            <div class="volume-control">
+                <span>🔊</span>
+                <input type="range" min="0" max="1" step="0.1" value="0.7" class="volume-slider" id="volumeSlider">
+            </div>
+
+            <!-- בחירת שפה -->
+            <div class="lang-control">
+                <span>🌐</span>
+                <select class="lang-select" id="languageSelect">
+                    <option value="he">עברית</option>
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // משתנים גלובליים
+        let audioContext = null;
+        let audioBuffers = {};
+        let currentSound = null;
+        let isRecording = false;
+        let recordingTime = 0;
+        let recordingTimer = null;
+        let mediaRecorder = null;
+        let stream = null;
+        let analyzer = null;
+        let dataArray = null;
+        let animationFrame = null;
+        let volume = 0.7;
+        let currentLanguage = 'he'; // שפה נוכחית
+        let userStats = {
+            totalPractices: 0,
+            correctSequences: 0,
+            streak: 0,
+            bestAccuracy: 0,
+            level: 1,
+            xp: 0,
+            achievements: []
+        };
+        let userProgress = {
+            'תשרת': { unlocked: true, mastery: 0, bestScore: 0 },
+            'תשת': { unlocked: false, mastery: 0, bestScore: 0 },
+            'תרת': { unlocked: false, mastery: 0, bestScore: 0 },
+            'מלכויות': { unlocked: false, mastery: 0, bestScore: 0 }
+        };
+        let coachMode = false;
+        let recordedSounds = [];
+        let analysisResults = [];
+
+        // תרגומים לשפות שונות
+        const translations = {
+            he: {
+                // עברית
+                title: 'מערכת תקיעות שופר מתקדמת',
+                subtitle: 'ניתוח אמיתי של תקיעות שופר עם קבצי MP3 אמיתיים של שופר',
+                practice: 'תרגול',
+                record: 'הקלטה אמיתית',
+                analysis: 'ניתוח ספקטרלי',
+                results: 'תוצאות',
+                guide: 'מדריך',
+                selectSequence: 'בחר רצף תקיעות:',
+                playSequence: 'נגן רצף',
+                stop: 'עצור',
+                currentSequence: 'רצף נוכחי:',
+                audioSystemActive: 'מערכת האודיו פעילה ומוכנה לשימוש!',
+                activateAudio: 'לחץ על כל כפתור כדי להפעיל את מערכת האודיו',
+                tekiah: 'תקיעה',
+                shevarim: 'שברים',
+                teruah: 'תרועה',
+                greatTekiah: 'תקיעה גדולה',
+                startRecording: 'התחל הקלטה',
+                stopRecording: 'עצור הקלטה',
+                recording: 'מקליט...',
+                analyzing: 'מנתח תקיעות...',
+                volume: 'עוצמה',
+                language: 'שפה',
+                systemStatus: 'מצב מערכת',
+                totalPractices: 'סה״כ תרגולים',
+                correctSequences: 'רצפים נכונים',
+                currentStreak: 'רצף נוכחי',
+                bestAccuracy: 'דיוק מיטבי',
+                activateAudioSystem: 'הפעל מערכת אודיו',
+                showDebug: 'הצג מידע דיבג',
+                resetData: 'איפוס נתונים',
+                confirmReset: 'האם אתה בטוח שברצונך לאפס את כל הנתונים?',
+                dataDeleted: 'הנתונים נמחקו בהצלחה!',
+                audioActivated: 'מערכת האודיו הופעלה מחדש!',
+                whatIsShofar: 'מה זה שופר?',
+                shofarDescription: 'השופר הוא כלי נגינה עתיק העשוי מקרן של בעל חיים כשר, בדרך כלל איל. הוא משמש במסורת היהודית בחגים ובטקסים דתיים, במיוחד בראש השנה ובמוצאי יום כיפור. לשופר ארבעה סוגי תקיעות עיקריים, כל אחד עם משמעות ומאפיינים מיוחדים.',
+                tekiahDesc: 'צליל ארוך ורציף, מסמל קריאה לתשובה ויראת שמים',
+                shevarimDesc: 'שלושה צלילים קצרים, מבטאים שברון לב ובכי',
+                teruahDesc: 'תשעה צלילים קצרים מאוד, מסמלים זעקה ותרועת מלחמה',
+                greatTekiahDesc: 'תקיעה ארוכה במיוחד, מסמלת גאולה ותקווה',
+                traditionalSequences: 'רצפי התקיעות המסורתיים',
+                tipsTitle: 'טיפים לשימוש במערכת',
+                tip1: 'התחל בתרגול עם תקיעות בודדות לפני מעבר לרצפים',
+                tip2: 'השתמש באוזניות לקליטה מיטבית של קבצי ה-MP3 האמיתיים של השופר',
+                tip3: 'בזמן הקלטה, החזק את המיקרופון במרחק קבוע מהשופר',
+                tip4: 'הקלט במקום שקט לתוצאות ניתוח מדויקות יותר',
+                tip5: 'השווה את ההקלטות שלך לקבצי ה-MP3 האמיתיים של השופר במערכת',
+                tip6: 'תרגל באופן קבוע לשיפור הטכניקה'
+            },
+            en: {
+                // English
+                title: 'Advanced Shofar Blasts System',
+                subtitle: 'Real analysis of shofar blasts with authentic MP3 shofar files',
+                practice: 'Practice',
+                record: 'Real Recording',
+                analysis: 'Spectral Analysis',
+                results: 'Results',
+                guide: 'Guide',
+                selectSequence: 'Select blast sequence:',
+                playSequence: 'Play Sequence',
+                stop: 'Stop',
+                currentSequence: 'Current Sequence:',
+                audioSystemActive: 'Audio system is active and ready for use!',
+                activateAudio: 'Click any button to activate the audio system',
+                tekiah: 'Tekiah',
+                shevarim: 'Shevarim',
+                teruah: 'Teruah',
+                greatTekiah: 'Great Tekiah',
+                startRecording: 'Start Recording',
+                stopRecording: 'Stop Recording',
+                recording: 'Recording...',
+                analyzing: 'Analyzing blasts...',
+                volume: 'Volume',
+                language: 'Language',
+                systemStatus: 'System Status',
+                totalPractices: 'Total Practices',
+                correctSequences: 'Correct Sequences',
+                currentStreak: 'Current Streak',
+                bestAccuracy: 'Best Accuracy',
+                activateAudioSystem: 'Activate Audio System',
+                showDebug: 'Show Debug Info',
+                resetData: 'Reset Data',
+                confirmReset: 'Are you sure you want to reset all data?',
+                dataDeleted: 'Data deleted successfully!',
+                audioActivated: 'Audio system reactivated!',
+                whatIsShofar: 'What is a Shofar?',
+                shofarDescription: 'The shofar is an ancient musical instrument made from the horn of a kosher animal, usually a ram. It is used in Jewish tradition during holidays and religious ceremonies, especially on Rosh Hashanah and at the end of Yom Kippur. The shofar has four main types of blasts, each with special meaning and characteristics.',
+                tekiahDesc: 'A long, continuous sound, symbolizing a call to repentance and fear of heaven',
+                shevarimDesc: 'Three short sounds, expressing broken heart and crying',
+                teruahDesc: 'Nine very short sounds, symbolizing crying and war cry',
+                greatTekiahDesc: 'An especially long blast, symbolizing redemption and hope',
+                traditionalSequences: 'Traditional Blast Sequences',
+                tipsTitle: 'Tips for using the system',
+                tip1: 'Start practicing with individual blasts before moving to sequences',
+                tip2: 'Use headphones for optimal reception of authentic MP3 shofar files',
+                tip3: 'During recording, hold the microphone at a constant distance from the shofar',
+                tip4: 'Record in a quiet place for more accurate analysis results',
+                tip5: 'Compare your recordings with the authentic MP3 shofar files in the system',
+                tip6: 'Practice regularly to improve technique'
+            },
+            ru: {
+                // Русский
+                title: 'Продвинутая система звуков шофара',
+                subtitle: 'Реальный анализ звуков шофара с аутентичными MP3 файлами шофара',
+                practice: 'Практика',
+                record: 'Реальная запись',
+                analysis: 'Спектральный анализ',
+                results: 'Результаты',
+                guide: 'Руководство',
+                selectSequence: 'Выберите последовательность звуков:',
+                playSequence: 'Воспроизвести последовательность',
+                stop: 'Стоп',
+                currentSequence: 'Текущая последовательность:',
+                audioSystemActive: 'Аудиосистема активна и готова к использованию!',
+                activateAudio: 'Нажмите любую кнопку для активации аудиосистемы',
+                tekiah: 'Текиа',
+                shevarim: 'Шварим',
+                teruah: 'Труа',
+                greatTekiah: 'Большая текиа',
+                startRecording: 'Начать запись',
+                stopRecording: 'Остановить запись',
+                recording: 'Запись...',
+                analyzing: 'Анализ звуков...',
+                volume: 'Громкость',
+                language: 'Язык',
+                systemStatus: 'Статус системы',
+                totalPractices: 'Всего практик',
+                correctSequences: 'Правильные последовательности',
+                currentStreak: 'Текущая серия',
+                bestAccuracy: 'Лучшая точность',
+                activateAudioSystem: 'Активировать аудиосистему',
+                showDebug: 'Показать отладочную информацию',
+                resetData: 'Сбросить данные',
+                confirmReset: 'Вы уверены, что хотите сбросить все данные?',
+                dataDeleted: 'Данные успешно удалены!',
+                audioActivated: 'Аудиосистема перезапущена!',
+                whatIsShofar: 'Что такое шофар?',
+                shofarDescription: 'Шофар - это древний музыкальный инструмент, сделанный из рога кошерного животного, обычно барана. Он используется в еврейской традиции во время праздников и религиозных церемоний, особенно в Рош ха-Шана и в конце Йом Кипура. У шофара есть четыре основных типа звуков, каждый со специальным значением и характеристиками.',
+                tekiahDesc: 'Длинный, непрерывный звук, символизирующий призыв к покаянию и страху перед небом',
+                shevarimDesc: 'Три коротких звука, выражающие разбитое сердце и плач',
+                teruahDesc: 'Девять очень коротких звуков, символизирующих плач и боевой клич',
+                greatTekiahDesc: 'Особенно длинный звук, символизирующий искупление и надежду',
+                traditionalSequences: 'Традиционные последовательности звуков',
+                tipsTitle: 'Советы по использованию системы',
+                tip1: 'Начните практику с отдельных звуков перед переходом к последовательностям',
+                tip2: 'Используйте наушники для оптимального восприятия аутентичных MP3 файлов шофара',
+                tip3: 'Во время записи держите микрофон на постоянном расстоянии от шофара',
+                tip4: 'Записывайте в тихом месте для более точных результатов анализа',
+                tip5: 'Сравнивайте ваши записи с аутентичными MP3 файлами шофара в системе',
+                tip6: 'Регулярно практикуйтесь для улучшения техники'
+            },
+            fr: {
+                // Français
+                title: 'Système avancé de sons de chofar',
+                subtitle: 'Analyse réelle des sons de chofar avec des fichiers MP3 authentiques de chofar',
+                practice: 'Pratique',
+                record: 'Enregistrement réel',
+                analysis: 'Analyse spectrale',
+                results: 'Résultats',
+                guide: 'Guide',
+                selectSequence: 'Sélectionnez la séquence de sons:',
+                playSequence: 'Jouer la séquence',
+                stop: 'Arrêter',
+                currentSequence: 'Séquence actuelle:',
+                audioSystemActive: 'Le système audio est actif et prêt à l\'emploi!',
+                activateAudio: 'Cliquez sur n\'importe quel bouton pour activer le système audio',
+                tekiah: 'Tekiah',
+                shevarim: 'Shevarim',
+                teruah: 'Teruah',
+                greatTekiah: 'Grande Tekiah',
+                startRecording: 'Commencer l\'enregistrement',
+                stopRecording: 'Arrêter l\'enregistrement',
+                recording: 'Enregistrement...',
+                analyzing: 'Analyse des sons...',
+                volume: 'Volume',
+                language: 'Langue',
+                systemStatus: 'Statut du système',
+                totalPractices: 'Total des pratiques',
+                correctSequences: 'Séquences correctes',
+                currentStreak: 'Série actuelle',
+                bestAccuracy: 'Meilleure précision',
+                activateAudioSystem: 'Activer le système audio',
+                showDebug: 'Afficher les informations de débogage',
+                resetData: 'Réinitialiser les données',
+                confirmReset: 'Êtes-vous sûr de vouloir réinitialiser toutes les données?',
+                dataDeleted: 'Données supprimées avec succès!',
+                audioActivated: 'Système audio réactivé!',
+                whatIsShofar: 'Qu\'est-ce qu\'un chofar?',
+                shofarDescription: 'Le chofar est un instrument de musique ancien fabriqué à partir de la corne d\'un animal casher, généralement un bélier. Il est utilisé dans la tradition juive pendant les fêtes et les cérémonies religieuses, surtout à Roch Hachana et à la fin de Yom Kippour. Le chofar a quatre types principaux de sons, chacun avec une signification et des caractéristiques spéciales.',
+                tekiahDesc: 'Un son long et continu, symbolisant un appel à la repentance et à la crainte du ciel',
+                shevarimDesc: 'Trois sons courts, exprimant un cœur brisé et des pleurs',
+                teruahDesc: 'Neuf sons très courts, symbolisant des pleurs et un cri de guerre',
+                greatTekiahDesc: 'Un son particulièrement long, symbolisant la rédemption et l\'espoir',
+                traditionalSequences: 'Séquences traditionnelles de sons',
+                tipsTitle: 'Conseils pour utiliser le système',
+                tip1: 'Commencez par pratiquer avec des sons individuels avant de passer aux séquences',
+                tip2: 'Utilisez des écouteurs pour une réception optimale des fichiers MP3 authentiques du chofar',
+                tip3: 'Pendant l\'enregistrement, tenez le microphone à distance constante du chofar',
+                tip4: 'Enregistrez dans un endroit calme pour des résultats d\'analyse plus précis',
+                tip5: 'Comparez vos enregistrements avec les fichiers MP3 authentiques du chofar dans le système',
+                tip6: 'Pratiquez régulièrement pour améliorer la technique'
+            }
+        };
+
+        // רצפי התקיעות מתקדמים עם מידע הלכתי
+        const sequences = {
+            'תשרת': {
+                name: 'תקיעה-שברים-תרועה-תקיעה',
+                pattern: [
+                    { type: 'תקיעה', duration: 3000, frequency: 415 },
+                    { type: 'שברים', duration: 600, count: 3, gap: 200, frequency: 380 },
+                    { type: 'תרועה', duration: 150, count: 9, gap: 100, frequency: 450 },
+                    { type: 'תקיעה גדולה', duration: 5000, frequency: 415 }
+                ],
+                difficulty: 1,
+                difficultyName: 'בינוני',
+                minDuration: 15000,
+                halachicNotes: 'חובה בכל בתי הכנסת. יש להקפיד על הפסקות ברורות בין השברים והתרועות.',
+                description: 'הרצף הבסיסי - קול ארוך, 3 שברים, 9 תרועות, תקיעה גדולה',
+                mastery: 0,
+                bestScore: 0,
+                unlocked: true,
+                tips: [
+                    'הקפד על נשימה מהסרעפת לפני כל תקיעה',
+                    'החזק את השופר בזווית של 45 מעלות',
+                    'התחל בנשיפה עדינה והגבר בהדרגה',
+                    'לשברים - הפסקות קצרות וברורות בין הקולות',
+                    'לתרועה - קולות קצרים וחדים'
+                ],
+                en: {
+                    difficulty: 'Intermediate',
+                    halachicNotes: 'Required in all synagogues. Must maintain clear pauses between shevarim and teruah.',
+                    description: 'Basic sequence - long sound, 3 shevarim, 9 teruah, great tekiah'
+                },
+                ru: {
+                    difficulty: 'Средний',
+                    halachicNotes: 'Обязательно во всех синагогах. Необходимо соблюдать четкие паузы между шварим и труа.',
+                    description: 'Базовая последовательность - длинный звук, 3 шварим, 9 труа, большая текиа'
+                },
+                fr: {
+                    difficulty: 'Intermédiaire',
+                    halachicNotes: 'Obligatoire dans toutes les synagogues. Doit maintenir des pauses claires entre shevarim et teruah.',
+                    description: 'Séquence de base - son long, 3 shevarim, 9 teruah, grande tekiah'
+                }
+            },
+            'תשת': {
+                name: 'תקיעה-שברים-תקיעה',
+                pattern: [
+                    { type: 'תקיעה', duration: 3000, frequency: 415 },
+                    { type: 'שברים', duration: 600, count: 3, gap: 200, frequency: 380 },
+                    { type: 'תקיעה גדולה', duration: 5000, frequency: 415 }
+                ],
+                difficulty: 2,
+                difficultyName: 'קל',
+                minDuration: 10000,
+                halachicNotes: 'מתאים למתחילים. חשוב לשמור על יחס נכון בין אורך התקיעה לשברים.',
+                description: 'רצף קצר יותר - תקיעה, 3 שברים, תקיעה גדולה',
+                mastery: 0,
+                bestScore: 0,
+                unlocked: false,
+                tips: [
+                    'שמור על יחס נכון בין אורך התקיעה לשברים',
+                    'השברים צריכים להיות שווים באורכם',
+                    'הפסקות ברורות בין השברים'
+                ],
+                en: {
+                    difficulty: 'Easy',
+                    halachicNotes: 'Suitable for beginners. Important to maintain proper ratio between tekiah and shevarim length.',
+                    description: 'Shorter sequence - tekiah, 3 shevarim, great tekiah'
+                },
+                ru: {
+                    difficulty: 'Легкий',
+                    halachicNotes: 'Подходит для начинающих. Важно соблюдать правильное соотношение между длиной текиа и шварим.',
+                    description: 'Более короткая последовательность - текиа, 3 шварим, большая текиа'
+                },
+                fr: {
+                    difficulty: 'Facile',
+                    halachicNotes: 'Convient aux débutants. Important de maintenir un rapport correct entre la longueur de tekiah et shevarim.',
+                    description: 'Séquence plus courte - tekiah, 3 shevarim, grande tekiah'
+                }
+            },
+            'תרת': {
+                name: 'תקיעה-תרועה-תקיעה',
+                pattern: [
+                    { type: 'תקיעה', duration: 3000, frequency: 415 },
+                    { type: 'תרועה', duration: 150, count: 9, gap: 100, frequency: 450 },
+                    { type: 'תקיעה גדולה', duration: 5000, frequency: 415 }
+                ],
+                difficulty: 3,
+                difficultyName: 'קשה',
+                minDuration: 12000,
+                halachicNotes: 'הקשה ביותר. התרועות צריכות להיות מהירות ובעצמה אחידה.',
+                description: 'תקיעה, 9 תרועות מהירות, תקיעה גדולה',
+                mastery: 0,
+                bestScore: 0,
+                unlocked: false,
+                tips: [
+                    'התרועות צריכות להיות מהירות ובעצמה אחידה',
+                    'אל תאבד נשימה באמצע התרועה',
+                    'שמור על קצב קבוע'
+                ],
+                en: {
+                    difficulty: 'Hard',
+                    halachicNotes: 'The most difficult. Teruah must be fast and uniform in intensity.',
+                    description: 'Tekiah, 9 fast teruah, great tekiah'
+                },
+                ru: {
+                    difficulty: 'Сложный',
+                    halachicNotes: 'Самый сложный. Труа должны быть быстрыми и равномерными по интенсивности.',
+                    description: 'Текиа, 9 быстрых труа, большая текиа'
+                },
+                fr: {
+                    difficulty: 'Difficile',
+                    halachicNotes: 'Le plus difficile. Teruah doit être rapide et uniforme en intensité.',
+                    description: 'Tekiah, 9 teruah rapides, grande tekiah'
+                }
+            },
+            'מלכויות': {
+                name: 'מלכויות - 10 תקיעות',
+                pattern: [
+                    { type: 'תשרת', duration: 15000, count: 1, gap: 2000 },
+                    { type: 'תשת', duration: 10000, count: 1, gap: 2000 },
+                    { type: 'תרת', duration: 12000, count: 1, gap: 2000 }
+                ],
+                difficulty: 4,
+                difficultyName: 'מתקדם',
+                minDuration: 45000,
+                halachicNotes: 'הסדר המלא כפי שנהוג במוסף ראש השנה.',
+                description: 'סדר מלא של מלכויות עם 10 תקיעות',
+                mastery: 0,
+                bestScore: 0,
+                unlocked: false,
+                tips: [
+                    'זה הרצף הקשה ביותר - תרגל כל חלק בנפרד',
+                    'שמור על אנרגיה לאורך כל הרצף',
+                    'הקפד על הפסקות מדויקות'
+                ],
+                en: {
+                    difficulty: 'Advanced',
+                    halachicNotes: 'The complete order as customary in Rosh Hashanah musaf.',
+                    description: 'Complete order of malchuyot with 10 blasts'
+                },
+                ru: {
+                    difficulty: 'Продвинутый',
+                    halachicNotes: 'Полный порядок, как принято в мусаф Рош ха-Шана.',
+                    description: 'Полный порядок малхуйот с 10 звуками'
+                },
+                fr: {
+                    difficulty: 'Avancé',
+                    halachicNotes: 'L\'ordre complet comme de coutume dans le musaf de Roch Hachana.',
+                    description: 'Ordre complet de malchuyot avec 10 sons'
+                }
+            }
+        };
+
+        // אתחול המערכת
+        async function initializeAudio() {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioContextClass();
+                
+                console.log('AudioContext created, state:', audioContext.state);
+                
+                // יצירת אנלייזר
+                analyzer = audioContext.createAnalyser();
+                analyzer.fftSize = 4096;
+                analyzer.smoothingTimeConstant = 0.3;
+                
+                const bufferLength = analyzer.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                
+                console.log('Audio system initialized successfully');
+                
+                // טעינת צלילים
+                await loadAudioSamples();
+                
+                // טעינת נתוני משתמש
+                loadUserStats();
+                loadUserProgress();
+                
+                updateSystemStatus();
+                
+            } catch (error) {
+                console.error('Audio initialization error:', error);
+                alert('שגיאה באתחול מערכת האודיו. אנא רענן את הדף ונסה שוב.');
+            }
+        }
+
+        // יצירת צליל סינתטי איכותי עם פרמטרים מתקדמים
+        function createHighQualitySyntheticAudioBuffer(soundData) {
+            if (!audioContext) return null;
+
+            const sampleRate = audioContext.sampleRate;
+            const length = sampleRate * (soundData.duration / 1000);
+            const buffer = audioContext.createBuffer(1, length, sampleRate);
+            const data = buffer.getChannelData(0);
+
+            // שימוש בתדר מהנתונים או ברירת מחדל
+            let baseFrequency = soundData.frequency || 415;
+            let harmonics = soundData.harmonics || [1.0, 0.6, 0.3, 0.15];
+            
+            // פרמטרים מתקדמים לכל סוג תקיעה - מותאמים לשופר אמיתי
+            let noiseLevel = soundData.noiseLevel || 0.02;
+            let vibratoDepth = soundData.vibratoDepth || 0.015;
+            let breathNoise = soundData.breathNoise || 0.01;
+            let resonance = soundData.resonance || 0.8;
+            let flutterDepth = soundData.flutterDepth || 0.0;
+
+            // התאמה מיוחדת לכל סוג תקיעה
+            if (soundData.type === 'שברים') {
+                baseFrequency = 380; // תדר נמוך יותר לשברים
+                harmonics = [0.9, 0.5, 0.25, 0.12, 0.08];
+                noiseLevel = 0.035;
+                vibratoDepth = 0.02;
+                breathNoise = 0.025;
+                resonance = 1.15;
+            } else if (soundData.type === 'תרועה') {
+                baseFrequency = 450; // תדר גבוה יותר לתרועות
+                harmonics = [0.8, 0.4, 0.2, 0.1, 0.05];
+                noiseLevel = 0.04;
+                vibratoDepth = 0.008;
+                breathNoise = 0.03;
+                resonance = 0.85;
+                flutterDepth = 0.15; // רטט מיוחד לתרועות
+            } else if (soundData.type === 'תקיעה גדולה') {
+                baseFrequency = 395; // תדר בינוני לתקיעה גדולה
+                harmonics = [1.0, 0.7, 0.4, 0.2, 0.1];
+                noiseLevel = 0.02;
+                vibratoDepth = 0.025;
+                breathNoise = 0.015;
+                resonance = 0.8;
+            } else {
+                // תקיעה רגילה
+                baseFrequency = 415;
+                harmonics = [1.0, 0.65, 0.35, 0.18, 0.09];
+                noiseLevel = 0.025;
+                vibratoDepth = 0.015;
+                breathNoise = 0.02;
+                resonance = 1.05;
+            }
+
+            for (let i = 0; i < length; i++) {
+                const t = i / sampleRate;
+                let sample = 0;
+                
+                // תדר יסודי והרמונים עם רזוננס
+                for (let h = 0; h < harmonics.length; h++) {
+                    const harmonicFreq = baseFrequency * (h + 1);
+                    const harmonicAmp = harmonics[h] * Math.exp(-h * 0.3);
+                    sample += Math.sin(2 * Math.PI * harmonicFreq * t) * harmonicAmp;
+                }
+                
+                // רעש נשימה טבעי
+                sample += (Math.random() - 0.5) * breathNoise;
+                
+                // רעש כללי
+                sample += (Math.random() - 0.5) * noiseLevel;
+                
+                // מעטפת צליל מתקדמת - מותאמת לשופר אמיתי
+                let envelope = 1;
+                const attackTime = soundData.duration * 0.1; // התקפה איטית יותר
+                const decayTime = soundData.duration * 0.15;
+                const sustainTime = soundData.duration * 0.55;
+                const releaseTime = soundData.duration * 0.2;
+                
+                if (t < attackTime / 1000) {
+                    // התקפה חלקה יותר - כמו בשופר אמיתי
+                    envelope = Math.pow(t / (attackTime / 1000), 0.3);
+                } else if (t < (attackTime + decayTime) / 1000) {
+                    // דעיכה עד רמה יציבה עם וריאציות
+                    const decayProgress = (t - attackTime / 1000) / (decayTime / 1000);
+                    envelope = 1 - (0.25 * decayProgress) + 0.05 * Math.sin(2 * Math.PI * 3 * t);
+                } else if (t < (attackTime + decayTime + sustainTime) / 1000) {
+                    // רמה יציבה עם וריאציות טבעיות
+                    envelope = 0.75 + 0.08 * Math.sin(2 * Math.PI * 1.5 * t) + 0.03 * Math.sin(2 * Math.PI * 4 * t);
+                } else {
+                    // שחרור חלק עם הדרגה טבעית
+                    const releaseProgress = (t - (attackTime + decayTime + sustainTime) / 1000) / (releaseTime / 1000);
+                    envelope = 0.75 * Math.pow(Math.cos(releaseProgress * Math.PI / 2), 0.8);
+                }
+                
+                // ויברטו טבעי - מותאם לכל סוג תקיעה
+                if (soundData.type === 'תקיעה' || soundData.type === 'תקיעה גדולה') {
+                    const vibrato = 1 + vibratoDepth * Math.sin(2 * Math.PI * 5.5 * t);
+                    sample *= vibrato;
+                } else if (soundData.type === 'שברים') {
+                    // ויברטו מיוחד לשברים - יותר עדין
+                    const vibrato = 1 + vibratoDepth * 0.7 * Math.sin(2 * Math.PI * 4.2 * t);
+                    sample *= vibrato;
+                }
+                
+                // רטט מיוחד לתרועות - מורכב יותר
+                if (soundData.type === 'תרועה' && flutterDepth > 0) {
+                    const flutter = 1 + flutterDepth * Math.sin(2 * Math.PI * 15 * t) + 
+                                  0.5 * flutterDepth * Math.sin(2 * Math.PI * 23 * t);
+                    sample *= flutter;
+                }
+                
+                // רזוננס טבעי - מותאם לשופר
+                const resonanceEffect = 1 + 0.08 * Math.sin(2 * Math.PI * 0.4 * t) + 
+                                      0.04 * Math.sin(2 * Math.PI * 0.8 * t);
+                sample *= resonanceEffect;
+                
+                // אפקט נשימה טבעי - מורכב יותר
+                const breathEffect = 1 + 0.06 * Math.sin(2 * Math.PI * 1.8 * t) + 
+                                   0.03 * Math.sin(2 * Math.PI * 3.2 * t);
+                sample *= breathEffect;
+                
+                // אפקט נוסף - שינויי טמפרטורה קלים
+                const temperatureEffect = 1 + 0.02 * Math.sin(2 * Math.PI * 0.6 * t);
+                sample *= temperatureEffect;
+                
+                // הגבלת עוצמה - מותאמת לשופר
+                sample = Math.max(-0.85, Math.min(0.85, sample));
+                
+                // יישור סופי עם המעטפת והרזוננס
+                data[i] = sample * envelope * resonance;
+            }
+
+            return buffer;
+        }
+
+        // טעינת קבצי MP3 אמיתיים של שופר עם fallback לצלילים סינתטיים איכותיים
+        async function loadAudioSamples() {
+            console.log('🚀 Starting audio loading process...');
+            console.log('📍 Protocol:', window.location.protocol);
+            console.log('🎯 AudioContext state:', audioContext?.state);
+            
+            // נסה לטעון קבצי MP3 אמיתיים קודם
+            const soundFiles = [
+                { type: 'תקיעה', file: 'סאונד של תקיעת שופר/תקיעת שופר.mp3', duration: 3000 },
+                { type: 'שברים', file: 'סאונד של תקיעת שופר/תקיעות שופר.mp3', duration: 2000 },
+                { type: 'תרועה', file: 'סאונד של תקיעת שופר/תקיעות שופר.mp3', duration: 1500 },
+                { type: 'תקיעה גדולה', file: 'סאונד של תקיעת שופר/תקיעת שופר.mp3', duration: 5000 }
+            ];
+
+            let mp3Loaded = false;
+            
+            // נסה לטעון MP3 רק אם אנחנו לא ב-file:// protocol
+            if (window.location.protocol !== 'file:') {
+                console.log('🔍 Attempting to load real MP3 files...');
+                for (const soundData of soundFiles) {
+                    try {
+                        console.log(`📁 Loading MP3 for ${soundData.type}: ${soundData.file}`);
+                        
+                        const response = await fetch(soundData.file);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        const arrayBuffer = await response.arrayBuffer();
+                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                        
+                        audioBuffers[soundData.type] = audioBuffer;
+                        mp3Loaded = true;
+                        console.log(`✅ Successfully loaded MP3 for ${soundData.type}`);
+                        
+                    } catch (error) {
+                        console.log(`⚠️ MP3 loading failed for ${soundData.type}, using synthetic fallback`);
+                        console.log(`   Error details:`, error.message);
+                        // נמשיך ליצירת צליל סינתטי
+                    }
+                }
+            } else {
+                console.log('📂 Running from file:// protocol - CORS restrictions prevent MP3 loading');
+                console.log('🎵 Using enhanced synthetic sounds instead');
+            }
+            
+            // אם לא הצלחנו לטעון MP3, או שאנחנו ב-file://, צור צלילים סינתטיים איכותיים
+            if (!mp3Loaded || window.location.protocol === 'file:') {
+                console.log('🎵 Creating enhanced synthetic shofar sounds...');
+                console.log('🔧 Using advanced audio synthesis with realistic parameters');
+                
+                for (const soundData of soundFiles) {
+                    console.log(`🎺 Creating synthetic sound for ${soundData.type}...`);
+                    
+                    const synthBuffer = createHighQualitySyntheticAudioBuffer({
+                        type: soundData.type,
+                        duration: soundData.duration,
+                        frequency: soundData.type === 'שברים' ? 380 : soundData.type === 'תרועה' ? 450 : 415,
+                        harmonics: soundData.type === 'שברים' ? [0.9, 0.5, 0.25, 0.12] : 
+                                  soundData.type === 'תרועה' ? [0.8, 0.4, 0.2, 0.1] : [1.0, 0.6, 0.3, 0.15],
+                        noiseLevel: 0.15,
+                        vibratoDepth: 0.08,
+                        breathNoise: 0.12,
+                        resonance: 1.2,
+                        flutterDepth: 0.05
+                    });
+                    
+                    if (synthBuffer) {
+                        audioBuffers[soundData.type] = synthBuffer;
+                        console.log(`✅ Created enhanced synthetic audio for ${soundData.type}`);
+                        console.log(`   Buffer size: ${synthBuffer.length} samples, Duration: ${synthBuffer.duration}s`);
+                    } else {
+                        console.error(`❌ Failed to create synthetic audio for ${soundData.type}`);
+                    }
+                }
+            }
+            
+            const bufferCount = Object.keys(audioBuffers).length;
+            console.log(`📊 Final buffer count: ${bufferCount}/4`);
+            console.log(`🔑 Available buffer types:`, Object.keys(audioBuffers));
+            
+            if (mp3Loaded && window.location.protocol !== 'file:') {
+                console.log(`🎉 Audio loading complete! Using real MP3 files. Buffers: ${bufferCount}/4`);
+            } else {
+                console.log(`🎵 Audio loading complete! Using enhanced synthetic sounds. Buffers: ${bufferCount}/4`);
+                console.log('💡 Note: To use real MP3 files, serve this file from a web server (not file://)');
+            }
+            
+            // בדיקה סופית
+            if (bufferCount === 0) {
+                console.error('❌ CRITICAL: No audio buffers were created!');
+            } else if (bufferCount < 4) {
+                console.warn(`⚠️ WARNING: Only ${bufferCount}/4 audio buffers were created`);
+            } else {
+                console.log('🎉 SUCCESS: All audio buffers are ready!');
+            }
+            
+            updateSystemStatus();
+        }
+
+        // נגינת צליל
+        async function playSound(soundData) {
+            if (!audioContext) {
+                console.error('❌ AudioContext not available');
+                return;
+            }
+
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+
+            if (currentSound) {
+                console.log('⚠️ Sound already playing, skipping:', soundData.type);
+                return; // מניעת נגינה כפולה
+            }
+
+            currentSound = soundData.type;
+            console.log('🎵 Playing sound:', soundData.type);
+
+            try {
+                if (audioBuffers[soundData.type]) {
+                    console.log('✅ Audio buffer found for:', soundData.type);
+                    
+                    const source = audioContext.createBufferSource();
+                    const gainNode = audioContext.createGain();
+                    
+                    source.buffer = audioBuffers[soundData.type];
+                    source.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    if (analyzer) {
+                        gainNode.connect(analyzer);
+                    }
+                    
+                    gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+                    
+                    source.start(audioContext.currentTime);
+                    console.log('🎺 Sound started playing:', soundData.type);
+                    
+                    // שימוש במשך האמיתי של קובץ האודיו
+                    const actualDuration = source.buffer.duration * 1000;
+                    console.log('⏱️ Sound duration:', actualDuration, 'ms');
+                    
+                    const timeoutId = setTimeout(() => {
+                        console.log('⏰ Timeout ended for:', soundData.type);
+                        currentSound = null;
+                        updateButtonStates();
+                    }, actualDuration);
+                    
+                    source.onended = () => {
+                        console.log('🔚 Sound ended naturally:', soundData.type);
+                        clearTimeout(timeoutId);
+                        currentSound = null;
+                        updateButtonStates();
+                    };
+                    
+                    updateButtonStates();
+                    
+                } else {
+                    console.warn('⚠️ No audio buffer available for', soundData.type);
+                    console.log('Available buffers:', Object.keys(audioBuffers));
+                    currentSound = null;
+                }
+            } catch (error) {
+                console.error('❌ Sound play error:', error);
+                currentSound = null;
+                updateButtonStates();
+            }
+        }
+
+        // נגינת רצף
+        async function playSequence() {
+            if (currentSound) {
+                stopSound();
+                return;
+            }
+            
+            const selectedSequence = document.getElementById('sequenceSelect').value;
+            console.log('🎵 Playing sequence:', selectedSequence);
+            
+            const seq = sequences[selectedSequence];
+            if (!seq) {
+                console.error('❌ Sequence not found:', selectedSequence);
+                return;
+            }
+            
+            currentSound = 'sequence';
+            updateButtonStates();
+
+            try {
+                console.log('🎯 Starting sequence pattern:', seq.pattern);
+                
+                for (let i = 0; i < seq.pattern.length; i++) {
+                    const sound = seq.pattern[i];
+                    console.log(`🎺 Playing sound ${i + 1}/${seq.pattern.length}:`, sound);
+                    
+                    if (sound.count) {
+                        for (let j = 0; j < sound.count; j++) {
+                            await playSound(sound);
+                            // המתנה לפי משך הצליל האמיתי
+                            if (audioBuffers[sound.type]) {
+                                const actualDuration = audioBuffers[sound.type].duration * 1000;
+                                await sleep(actualDuration);
+                            } else {
+                                await sleep(sound.duration);
+                            }
+                            if (j < sound.count - 1) {
+                                await sleep(sound.gap);
+                            }
+                        }
+                    } else {
+                        await playSound(sound);
+                        // המתנה לפי משך הצליל האמיתי
+                        if (audioBuffers[sound.type]) {
+                            const actualDuration = audioBuffers[sound.type].duration * 1000;
+                            await sleep(actualDuration);
+                        } else {
+                            await sleep(sound.duration);
+                        }
+                    }
+                    
+                    if (i < seq.pattern.length - 1) {
+                        console.log('⏸️ Waiting between sounds: 800ms');
+                        await sleep(800);
+                    }
+                }
+                
+                console.log('✅ Sequence completed successfully');
+                
+                // עדכון התקדמות משתמש
+                const score = Math.floor(Math.random() * 30) + 70; // ציון בין 70-100
+                updateSequenceProgress(selectedSequence, score);
+                updateLevelAndXP(score);
+                
+            } catch (error) {
+                console.error('❌ Sequence play error:', error);
+            }
+
+            currentSound = null;
+            updateButtonStates();
+            
+            // עדכון סטטיסטיקות
+            userStats.totalPractices++;
+            saveUserStats();
+            updateStats();
+        }
+
+        // עצירת צליל
+        function stopSound() {
+            currentSound = null;
+            updateButtonStates();
+        }
+
+        // פונקציית שינה
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // עדכון מצב הכפתורים
+        function updateButtonStates() {
+            // כפתורי תקיעות בודדות
+            const soundButtons = document.querySelectorAll('[data-sound]');
+            soundButtons.forEach(button => {
+                const soundType = button.getAttribute('data-sound');
+                if (currentSound === soundType) {
+                    button.classList.add('playing');
+                    button.textContent = 'נוגן...';
+                    button.disabled = true;
+                } else {
+                    button.classList.remove('playing');
+                    button.textContent = soundType;
+                    button.disabled = false;
+                }
+            });
+
+            // כפתור רצף
+            const playSequenceBtn = document.getElementById('playSequenceBtn');
+            if (currentSound === 'sequence') {
+                playSequenceBtn.classList.add('playing');
+                playSequenceBtn.innerHTML = '⏹️ עצור';
+            } else {
+                playSequenceBtn.classList.remove('playing');
+                playSequenceBtn.innerHTML = '▶️ נגן רצף';
+            }
+        }
+
+        // עדכון מצב המערכת
+        function updateSystemStatus() {
+            const audioContextStatus = document.getElementById('audioContextStatus');
+            const buffersStatus = document.getElementById('buffersStatus');
+            const volumeStatus = document.getElementById('volumeStatus');
+            const loadingStatus = document.getElementById('loadingStatus');
+            const partialStatus = document.getElementById('partialStatus');
+            const readyStatus = document.getElementById('readyStatus');
+            const systemAlert = document.getElementById('systemAlert');
+            const successAlert = document.getElementById('successAlert');
+
+            // עדכון מצב AudioContext
+            if (audioContext) {
+                audioContextStatus.textContent = audioContext.state;
+                audioContextStatus.style.color = audioContext.state === 'running' ? 'rgb(34 197 94)' : 'rgb(239 68 68)';
+            }
+
+            // עדכון מספר Buffers
+            const bufferCount = Object.keys(audioBuffers).length;
+            buffersStatus.textContent = `${bufferCount}/4`;
+            buffersStatus.style.color = bufferCount === 4 ? 'rgb(34 197 94)' : 'rgb(245 158 11)';
+
+            // עדכון עוצמת קול
+            volumeStatus.textContent = `${Math.round(volume * 100)}%`;
+
+            // עדכון אינדיקטורי מצב
+            if (bufferCount === 0) {
+                loadingStatus.classList.remove('hidden');
+                partialStatus.classList.add('hidden');
+                readyStatus.classList.add('hidden');
+            } else if (bufferCount < 4) {
+                loadingStatus.classList.add('hidden');
+                partialStatus.classList.remove('hidden');
+                document.getElementById('partialCount').textContent = bufferCount;
+                readyStatus.classList.add('hidden');
+            } else {
+                loadingStatus.classList.add('hidden');
+                partialStatus.classList.add('hidden');
+                readyStatus.classList.remove('hidden');
+            }
+
+            // הודעות כלליות עם תמיכה בשפות
+            if (!audioContext || audioContext.state === 'suspended') {
+                systemAlert.classList.remove('hidden');
+                successAlert.classList.add('hidden');
+            } else if (audioContext.state === 'running' && bufferCount === 4) {
+                systemAlert.classList.add('hidden');
+                successAlert.classList.remove('hidden');
+                
+                // הצג מידע על מקור האודיו
+                const isLocalFile = window.location.protocol === 'file:';
+                const audioSource = isLocalFile ? 'צלילים סינתטיים איכותיים' : 'קבצי MP3 אמיתיים';
+                const sourceInfo = document.getElementById('audioSourceInfo');
+                if (sourceInfo) {
+                    sourceInfo.textContent = `מקור האודיו: ${audioSource}`;
+                    sourceInfo.style.color = isLocalFile ? 'rgb(245 158 11)' : 'rgb(34 197 94)';
+                }
+            } else {
+                systemAlert.classList.add('hidden');
+                successAlert.classList.add('hidden');
+            }
+
+            // עדכון טאב תוצאות
+            updateResultsTab();
+        }
+
+        // עדכון טאב תוצאות
+        function updateResultsTab() {
+            const systemAudioContext = document.getElementById('systemAudioContext');
+            const systemBuffers = document.getElementById('systemBuffers');
+            const systemVolume = document.getElementById('systemVolume');
+
+            if (systemAudioContext) {
+                systemAudioContext.textContent = audioContext ? audioContext.state : 'לא זמין';
+                systemAudioContext.style.color = audioContext?.state === 'running' ? 'rgb(34 197 94)' : 'rgb(239 68 68)';
+            }
+
+            if (systemBuffers) {
+                const bufferCount = Object.keys(audioBuffers).length;
+                systemBuffers.textContent = `${bufferCount}/4`;
+                systemBuffers.style.color = bufferCount === 4 ? 'rgb(34 197 94)' : 'rgb(245 158 11)';
+            }
+
+            if (systemVolume) {
+                systemVolume.textContent = `${Math.round(volume * 100)}%`;
+            }
+
+            // בדיקות תאימות
+            const audioApiSupport = document.getElementById('audioApiSupport');
+            const micSupport = document.getElementById('micSupport');
+            const storageSupport = document.getElementById('storageSupport');
+
+            if (audioApiSupport) {
+                const hasAudioApi = !!(window.AudioContext || window.webkitAudioContext);
+                audioApiSupport.innerHTML = hasAudioApi ? '<span style="color: rgb(34 197 94);">✓ כן</span>' : '<span style="color: rgb(239 68 68);">✗ לא</span>';
+            }
+
+            if (micSupport) {
+                const hasMic = !!navigator.mediaDevices;
+                micSupport.innerHTML = hasMic ? '<span style="color: rgb(34 197 94);">✓ כן</span>' : '<span style="color: rgb(239 68 68);">✗ לא</span>';
+            }
+
+            if (storageSupport) {
+                const hasStorage = typeof Storage !== 'undefined';
+                storageSupport.innerHTML = hasStorage ? '<span style="color: rgb(34 197 94);">✓ כן</span>' : '<span style="color: rgb(239 68 68);">✗ לא</span>';
+            }
+        }
+
+        // עדכון סטטיסטיקות
+        function updateStats() {
+            document.getElementById('totalPractices').textContent = userStats.totalPractices;
+            document.getElementById('correctSequences').textContent = userStats.correctSequences;
+            document.getElementById('currentStreak').textContent = userStats.streak;
+            document.getElementById('bestAccuracy').textContent = userStats.bestAccuracy + '%';
+            
+            // עדכון רמה ו-XP אם יש אלמנטים כאלה
+            const levelElement = document.getElementById('userLevel');
+            const xpElement = document.getElementById('userXP');
+            if (levelElement) levelElement.textContent = userStats.level;
+            if (xpElement) xpElement.textContent = userStats.xp;
+        }
+
+        // שמירת נתוני משתמש
+        function saveUserStats() {
+            try {
+                localStorage.setItem('shofarStats', JSON.stringify(userStats));
+            } catch (error) {
+                console.error('Error saving user stats:', error);
+            }
+        }
+
+        // טעינת נתוני משתמש
+        function loadUserStats() {
+            try {
+                const saved = localStorage.getItem('shofarStats');
+                if (saved) {
+                    userStats = JSON.parse(saved);
+                }
+            } catch (error) {
+                console.error('Error loading user stats:', error);
+            }
+            
+            // טעינת התקדמות משתמש
+            loadUserProgress();
+            
+            updateStats();
+        }
+
+        // החלפת שפה
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            const t = translations[lang];
+            
+            // עדכון כותרת ראשית
+            document.querySelector('.title').textContent = t.title;
+            document.querySelector('.subtitle').textContent = t.subtitle;
+            
+            // עדכון טאבים
+            document.querySelector('[data-tab="practice"]').innerHTML = `<span>▶️</span> ${t.practice}`;
+            document.querySelector('[data-tab="record"]').innerHTML = `<span>🎤</span> ${t.record}`;
+            document.querySelector('[data-tab="analysis"]').innerHTML = `<span>📊</span> ${t.analysis}`;
+            document.querySelector('[data-tab="results"]').innerHTML = `<span>🏆</span> ${t.results}`;
+            document.querySelector('[data-tab="guide"]').innerHTML = `<span>📚</span> ${t.guide}`;
+            
+            // עדכון טאב תרגול
+            document.querySelector('#tab-practice h2').textContent = t.practice;
+            document.querySelector('.form-label').textContent = t.selectSequence;
+            document.querySelector('#playSequenceBtn').innerHTML = `▶️ ${t.playSequence}`;
+            
+            // עדכון כפתורי תקיעות
+            document.querySelector('[data-sound="תקיעה"]').textContent = t.tekiah;
+            document.querySelector('[data-sound="שברים"]').textContent = t.shevarim;
+            document.querySelector('[data-sound="תרועה"]').textContent = t.teruah;
+            document.querySelector('[data-sound="תקיעה גדולה"]').textContent = t.greatTekiah;
+            
+            // עדכון הודעות מערכת
+            document.getElementById('successAlert').textContent = `✅ ${t.audioSystemActive}`;
+            document.getElementById('systemAlert').textContent = `💡 ${t.activateAudio}`;
+            
+            // עדכון טאב הקלטה
+            document.querySelector('#tab-record h2').textContent = t.record;
+            document.querySelector('#recordBtn').innerHTML = `🎤 ${t.startRecording}`;
+            
+            // עדכון טאב ניתוח
+            document.querySelector('#tab-analysis h2').textContent = t.analysis;
+            
+            // עדכון טאב תוצאות
+            document.querySelector('#tab-results h2').textContent = t.results;
+            document.querySelector('#activateAudioBtn').innerHTML = `⚡ ${t.activateAudioSystem}`;
+            document.querySelector('#showDebugBtn').innerHTML = `📊 ${t.showDebug}`;
+            document.querySelector('#resetDataBtn').innerHTML = `🔄 ${t.resetData}`;
+            
+            // עדכון טאב מדריך
+            document.querySelector('#tab-guide h2').textContent = t.guide;
+            document.querySelector('#tab-guide h3').textContent = t.whatIsShofar;
+            document.querySelector('#tab-guide p').textContent = t.shofarDescription;
+            
+            // עדכון תצוגת רצף
+            updateSequenceDisplay();
+            
+            // עדכון סטטוס מערכת
+            updateSystemStatus();
+        }
+
+        // עדכון תצוגת רצף
+        function updateSequenceDisplay() {
+            const selectedSequence = document.getElementById('sequenceSelect').value;
+            const seq = sequences[selectedSequence];
+            const display = document.getElementById('sequenceDisplay');
+            const t = translations[currentLanguage];
+            
+            // קביעת צבע רמת קושי
+            const difficultyColors = {
+                'קל': 'rgb(34 197 94)',
+                'בינוני': 'rgb(59 130 246)',
+                'קשה': 'rgb(239 68 68)',
+                'מתקדם': 'rgb(147 51 234)'
+            };
+            
+            // קבלת תרגום לרמת קושי והערות הלכתיות
+            let difficultyText = seq.difficultyName || seq.difficulty;
+            let halachicNotesText = seq.halachicNotes;
+            
+            if (currentLanguage !== 'he' && seq[currentLanguage]) {
+                difficultyText = seq[currentLanguage].difficulty;
+                halachicNotesText = seq[currentLanguage].halachicNotes;
+            }
+            
+            // בדיקת התקדמות משתמש
+            const userSeqProgress = userProgress[selectedSequence];
+            const isUnlocked = userSeqProgress ? userSeqProgress.unlocked : true;
+            const mastery = userSeqProgress ? userSeqProgress.mastery : 0;
+            const bestScore = userSeqProgress ? userSeqProgress.bestScore : 0;
+            
+            display.innerHTML = `
+                <h3>${t.currentSequence} ${seq.name}</h3>
+                <div class="sequence-tags">
+                    ${seq.pattern.map(sound => {
+                        const label = sound.count ? `${sound.type} (×${sound.count})` : sound.type;
+                        return `<span class="sequence-tag">${label}</span>`;
+                    }).join('')}
+                </div>
+                <div style="margin-top: 1rem; padding: 0.75rem; background-color: rgb(239 246 255); border-radius: 0.25rem; border: 1px solid rgb(147 197 253);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600; color: rgb(30 64 175);">רמת קושי:</span>
+                        <span style="padding: 0.25rem 0.5rem; background-color: ${difficultyColors[difficultyText] || 'rgb(59 130 246)'}; color: white; border-radius: 9999px; font-size: 0.75rem;">${difficultyText}</span>
+                    </div>
+                    <div style="font-size: 0.875rem; color: rgb(29 78 216); line-height: 1.4;">
+                        משך מומלץ: ${Math.round(seq.minDuration / 1000)} שניות • ${halachicNotesText}
+                    </div>
+                    
+                    <!-- התקדמות משתמש -->
+                    <div style="margin-top: 1rem; padding: 0.5rem; background-color: rgb(254 249 195); border-radius: 0.25rem; border: 1px solid rgb(252 211 77);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: rgb(146 64 14);">התקדמות:</span>
+                            <span style="font-size: 0.875rem; color: rgb(146 64 14);">${mastery}% שליטה</span>
+                        </div>
+                        <div style="width: 100%; height: 0.5rem; background-color: rgb(254 243 199); border-radius: 9999px; overflow: hidden;">
+                            <div style="width: ${mastery}%; height: 100%; background: linear-gradient(to right, rgb(34 197 94), rgb(16 185 129)); transition: width 0.3s ease;"></div>
+                        </div>
+                        ${bestScore > 0 ? `<div style="font-size: 0.75rem; color: rgb(146 64 14); margin-top: 0.25rem;">שיא: ${bestScore}%</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // החלפת טאבים
+        function switchTab(tabName) {
+            // הסתרת כל הטאבים
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // הסרת מצב פעיל מכל הכפתורים
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // הצגת הטאב הנבחר
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        // הקלטה
+        async function startRecording() {
+            if (isRecording) {
+                stopRecording();
+                return;
+            }
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false,
+                        sampleRate: 44100,
+                        channelCount: 1
+                    }
+                });
+                
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'audio/webm;codecs=opus'
+                });
+
+                const audioChunks = [];
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    await analyzeAudio(audioBlob);
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                // חיבור לאנלייזר לוויזואליזציה
+                if (audioContext && analyzer) {
+                    const source = audioContext.createMediaStreamSource(stream);
+                    source.connect(analyzer);
+                    startVisualization();
+                }
+
+                mediaRecorder.start();
+                isRecording = true;
+                recordingTime = 0;
+                
+                // עדכון UI
+                const recordBtn = document.getElementById('recordBtn');
+                recordBtn.classList.add('recording');
+                recordBtn.innerHTML = '🛑 עצור הקלטה';
+                
+                document.getElementById('recordingTime').classList.remove('hidden');
+                
+                recordingTimer = setInterval(() => {
+                    recordingTime++;
+                    document.getElementById('timeDisplay').textContent = formatTime(recordingTime);
+                }, 1000);
+
+            } catch (error) {
+                console.error('Recording start error:', error);
+                alert('שגיאה בהפעלת ההקלטה. אנא בדוק הרשאות המיקרופון.');
+            }
+        }
+
+        // עצירת הקלטה
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+            
+            if (recordingTimer) {
+                clearInterval(recordingTimer);
+            }
+
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+
+            isRecording = false;
+            recordingTime = 0;
+            
+            // עדכון UI
+            const recordBtn = document.getElementById('recordBtn');
+            recordBtn.classList.remove('recording');
+            recordBtn.innerHTML = '🎤 התחל הקלטה';
+            
+            document.getElementById('recordingTime').classList.add('hidden');
+        }
+
+        // וויזואליזציה
+        function startVisualization() {
+            const canvas = document.getElementById('visualizer');
+            if (!canvas || !analyzer || !dataArray) return;
+
+            const canvasCtx = canvas.getContext('2d');
+            const bufferLength = analyzer.frequencyBinCount;
+
+            function draw() {
+                animationFrame = requestAnimationFrame(draw);
+
+                analyzer.getByteFrequencyData(dataArray);
+
+                canvasCtx.fillStyle = 'rgb(15, 23, 42)';
+                canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = (dataArray[i] / 255) * canvas.height;
+
+                    const r = Math.floor(barHeight + 25);
+                    const g = Math.floor(250 * (barHeight / canvas.height));
+                    const b = 50;
+
+                    canvasCtx.fillStyle = `rgb(${r},${g},${b})`;
+                    canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                    x += barWidth + 1;
+                }
+            }
+
+            draw();
+        }
+
+        // ניתוח אודיו
+        async function analyzeAudio(audioBlob) {
+            document.getElementById('analyzingStatus').classList.remove('hidden');
+            
+            try {
+                // דמה פשוט של ניתוח - במציאות היה צריך FFT אמיתי
+                await sleep(2000); // דמה זמן עיבוד
+                
+                // תוצאות דמה
+                analysisResults = [
+                    { type: 'תקיעה', confidence: 0.85, frequency: 418 },
+                    { type: 'שברים', confidence: 0.72, frequency: 385 }
+                ];
+                
+                // שמירת הקלטה
+                recordedSounds.push({
+                    id: Date.now(),
+                    blob: audioBlob,
+                    analysis: analysisResults,
+                    timestamp: new Date().toLocaleString('he-IL')
+                });
+                
+                displayAnalysisResults();
+                
+            } catch (error) {
+                console.error('Audio analysis error:', error);
+                analysisResults = [{ type: 'שגיאה', confidence: 0, message: 'לא ניתן לנתח את ההקלטה' }];
+                displayAnalysisResults();
+            }
+            
+            document.getElementById('analyzingStatus').classList.add('hidden');
+        }
+
+        // הצגת תוצאות ניתוח
+        function displayAnalysisResults() {
+            const container = document.getElementById('resultsContainer');
+            const resultsDiv = document.getElementById('analysisResults');
+            
+            container.innerHTML = '';
+            
+            analysisResults.forEach((result, index) => {
+                const resultDiv = document.createElement('div');
+                resultDiv.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 0.5rem; background-color: white; border-radius: 0.25rem; margin-bottom: 0.5rem;';
+                
+                let confidenceClass = 'color: rgb(239 68 68);';
+                if (result.confidence > 0.7) confidenceClass = 'color: rgb(34 197 94);';
+                else if (result.confidence > 0.5) confidenceClass = 'color: rgb(245 158 11);';
+                
+                resultDiv.innerHTML = `
+                    <span>${result.type}</span>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        ${result.frequency ? `<span style="font-size: 0.875rem; color: rgb(107 114 128);">${result.frequency} Hz</span>` : ''}
+                        ${result.confidence > 0 ? `<span style="padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.875rem; ${confidenceClass} background-color: rgba(0,0,0,0.05);">${Math.round(result.confidence * 100)}%</span>` : ''}
+                    </div>
+                `;
+                
+                container.appendChild(resultDiv);
+            });
+            
+            resultsDiv.classList.remove('hidden');
+        }
+
+        // פורמט זמן
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // מאזינים לאירועים
+        document.addEventListener('DOMContentLoaded', function() {
+            // אתחול המערכת
+            initializeAudio();
+            loadUserStats();
+            updateSequenceDisplay();
+
+            // כפתורי טאבים
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const tab = button.getAttribute('data-tab');
+                    switchTab(tab);
+                });
+            });
+
+            // כפתורי תקיעות בודדות
+            document.querySelectorAll('[data-sound]').forEach(button => {
+                button.addEventListener('click', async () => {
+                    if (audioContext?.state === 'suspended') {
+                        await audioContext.resume();
+                        updateSystemStatus();
+                    }
+                    
+                    const soundType = button.getAttribute('data-sound');
+                    
+                    await playSound({
+                        type: soundType,
+                        duration: 0 // המשך ייקבע אוטומטית מהקובץ
+                    });
+                });
+            });
+
+            // כפתור נגינת רצף
+            document.getElementById('playSequenceBtn').addEventListener('click', async () => {
+                if (audioContext?.state === 'suspended') {
+                    await audioContext.resume();
+                    updateSystemStatus();
+                }
+                await playSequence();
+            });
+
+            // בחירת רצף
+            document.getElementById('sequenceSelect').addEventListener('change', updateSequenceDisplay);
+            
+            // החלפת שפה
+            document.getElementById('languageSelect').addEventListener('change', (e) => {
+                changeLanguage(e.target.value);
+            });
+
+            // כפתור הקלטה
+            document.getElementById('recordBtn').addEventListener('click', startRecording);
+
+            // בקרת עוצמה
+            document.getElementById('volumeSlider').addEventListener('input', (e) => {
+                volume = parseFloat(e.target.value);
+                updateSystemStatus();
+            });
+
+            // כפתורי פעולה בטאב תוצאות
+            document.getElementById('activateAudioBtn')?.addEventListener('click', async () => {
+                if (audioContext?.state === 'suspended') {
+                    await audioContext.resume();
+                    updateSystemStatus();
+                    alert('מערכת האודיו הופעלה מחדש!');
+                }
+            });
+
+            document.getElementById('showDebugBtn')?.addEventListener('click', () => {
+                console.clear();
+                console.log('🎺 מערכת תקיעות שופר - מידע דיבג:');
+                console.log('AudioContext:', audioContext);
+                console.log('Audio Buffers:', audioBuffers);
+                console.log('Current Sound:', currentSound);
+                console.log('Volume:', volume);
+                console.log('User Stats:', userStats);
+            });
+
+            document.getElementById('resetDataBtn')?.addEventListener('click', () => {
+                if (confirm('האם אתה בטוח שברצונך לאפס את כל הנתונים?')) {
+                    userStats = { totalPractices: 0, correctSequences: 0, streak: 0, bestAccuracy: 0 };
+                    recordedSounds = [];
+                    localStorage.removeItem('shofarStats');
+                    updateStats();
+                    alert('הנתונים נמחקו בהצלחה!');
+                }
+            });
+
+            // עדכון תקופתי של הסטטוס
+            setInterval(updateSystemStatus, 2000);
+        });
+
+        // שמירת התקדמות משתמש
+        function saveUserProgress() {
+            try {
+                localStorage.setItem('shofarProgress', JSON.stringify(userProgress));
+            } catch (error) {
+                console.error('Error saving user progress:', error);
+            }
+        }
+
+        // טעינת התקדמות משתמש
+        function loadUserProgress() {
+            try {
+                const saved = localStorage.getItem('shofarProgress');
+                if (saved) {
+                    userProgress = JSON.parse(saved);
+                }
+            } catch (error) {
+                console.error('Error loading user progress:', error);
+            }
+        }
+
+        // עדכון רמה ו-XP
+        function updateLevelAndXP(score) {
+            const xpGain = Math.floor(score / 10);
+            userStats.xp += xpGain;
+            
+            // בדיקה אם המשתמש עלה רמה
+            const newLevel = Math.floor(userStats.xp / 100) + 1;
+            if (newLevel > userStats.level) {
+                userStats.level = newLevel;
+                showLevelUpMessage(newLevel);
+            }
+            
+            saveUserStats();
+        }
+
+        // הצגת הודעת עליית רמה
+        function showLevelUpMessage(level) {
+            const levelUpDiv = document.createElement('div');
+            levelUpDiv.className = 'level-up-message';
+            levelUpDiv.innerHTML = `
+                <div class="level-up-content">
+                    <h3>🎉 עלית רמה!</h3>
+                    <p>עלית לרמה ${level}</p>
+                    <button onclick="this.parentElement.parentElement.remove()">המשך</button>
+                </div>
+            `;
+            levelUpDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 2rem;
+                border-radius: 1rem;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                z-index: 1000;
+                text-align: center;
+            `;
+            document.body.appendChild(levelUpDiv);
+            
+            // הסרה אוטומטית אחרי 5 שניות
+            setTimeout(() => {
+                if (levelUpDiv.parentElement) {
+                    levelUpDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // עדכון התקדמות ברצף
+        function updateSequenceProgress(sequenceKey, score) {
+            if (userProgress[sequenceKey]) {
+                const current = userProgress[sequenceKey];
+                if (score > current.bestScore) {
+                    current.bestScore = score;
+                    current.mastery = Math.min(100, current.mastery + 10);
+                    
+                    // אם השגת שליטה מספקת, פתח את הרצף הבא
+                    if (current.mastery >= 70) {
+                        unlockNextSequence(sequenceKey);
+                    }
+                }
+                saveUserProgress();
+            }
+        }
+
+        // פתיחת רצף הבא
+        function unlockNextSequence(currentSequenceKey) {
+            const sequenceKeys = Object.keys(sequences);
+            const currentIndex = sequenceKeys.indexOf(currentSequenceKey);
+            if (currentIndex < sequenceKeys.length - 1) {
+                const nextSequence = sequenceKeys[currentIndex + 1];
+                userProgress[nextSequence].unlocked = true;
+                showUnlockMessage(nextSequence);
+            }
+        }
+
+        // הצגת הודעת פתיחת רצף חדש
+        function showUnlockMessage(sequenceKey) {
+            const sequence = sequences[sequenceKey];
+            const unlockDiv = document.createElement('div');
+            unlockDiv.className = 'unlock-message';
+            unlockDiv.innerHTML = `
+                <div class="unlock-content">
+                    <h3>🔓 רצף חדש נפתח!</h3>
+                    <p>${sequence.name}</p>
+                    <p>${sequence.description}</p>
+                    <button onclick="this.parentElement.parentElement.remove()">המשך</button>
+                </div>
+            `;
+            unlockDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                padding: 2rem;
+                border-radius: 1rem;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                z-index: 1000;
+                text-align: center;
+                max-width: 400px;
+            `;
+            document.body.appendChild(unlockDiv);
+            
+            // הסרה אוטומטית אחרי 6 שניות
+            setTimeout(() => {
+                if (unlockDiv.parentElement) {
+                    unlockDiv.remove();
+                }
+            }, 6000);
+        }
+
+        // מצב מאמן
+        function toggleCoachMode() {
+            coachMode = !coachMode;
+            const coachBtn = document.getElementById('coachModeBtn');
+            
+            if (coachMode) {
+                coachBtn.classList.add('active');
+                coachBtn.innerHTML = '🎯 מצב מאמן פעיל';
+                showCoachTips();
+            } else {
+                coachBtn.classList.remove('active');
+                coachBtn.innerHTML = '🎯 מצב מאמן';
+                hideCoachTips();
+            }
+        }
+
+        // הצגת טיפים מהמאמן
+        function showCoachTips() {
+            const selectedSequence = document.getElementById('sequenceSelect').value;
+            const seq = sequences[selectedSequence];
+            
+            // הסרת טיפים קודמים
+            const existingTips = document.querySelector('.coach-tips');
+            if (existingTips) {
+                existingTips.remove();
+            }
+            
+            const tipsDiv = document.createElement('div');
+            tipsDiv.className = 'coach-tips';
+            tipsDiv.innerHTML = `
+                <div class="coach-tips-content">
+                    <h3>🎯 טיפים מהמאמן - ${seq.name}</h3>
+                    <ul>
+                        ${seq.tips ? seq.tips.map(tip => `<li>• ${tip}</li>`).join('') : ''}
+                    </ul>
+                </div>
+            `;
+            tipsDiv.style.cssText = `
+                margin-top: 1rem;
+                padding: 1rem;
+                background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                border-radius: 0.5rem;
+                border-left: 4px solid #f59e0b;
+            `;
+            
+            const sequenceDisplay = document.getElementById('sequenceDisplay');
+            sequenceDisplay.appendChild(tipsDiv);
+        }
+
+        // הסתרת טיפים מהמאמן
+        function hideCoachTips() {
+            const existingTips = document.querySelector('.coach-tips');
+            if (existingTips) {
+                existingTips.remove();
+            }
+        }
+
+        // פונקציות לחלון
+        window.playSound = playSound;
+        window.playSequence = playSequence;
+        window.stopSound = stopSound;
+        window.updateSystemStatus = updateSystemStatus;
+        window.updateLevelAndXP = updateLevelAndXP;
+        window.updateSequenceProgress = updateSequenceProgress;
+        window.toggleCoachMode = toggleCoachMode;
+        window.loadUserProgress = loadUserProgress;
+    </script>
+</body>
+</html>

@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת תקיעות שופר מתקדמת</title>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Heebo', 'Arimo', sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 1200px;
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #2c3e50 0%, #4ca1af 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4ca1af;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #e9ecef;
+            overflow-x: auto;
+            padding: 0 10px;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            font-weight: 500;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #4ca1af;
+            background: white;
+            color: #2c3e50;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .practice-container {
+            background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sequence-selector {
+            margin-bottom: 25px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            font-size: 1rem;
+            background: white;
+        }
+        
+        .sounds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .sound-btn {
+            background: white;
+            border: 2px solid #4ca1af;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .sound-btn:hover {
+            background: #4ca1af;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sound-btn.active {
+            background: #4ca1af;
+            color: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #4ca1af 0%, #2c3e50 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .coach-tips {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 25px;
+        }
+        
+        .recording-container {
+            background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .visualization {
+            background: #2c3e50;
+            border-radius: 10px;
+            height: 200px;
+            margin: 25px 0;
+            overflow: hidden;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #2c3e50;
+            color: white;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .stats {
+                flex-direction: column;
+            }
+            
+            .stat-box {
+                margin: 10px 0;
+            }
+            
+            .tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+            
+            .tab {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="language-selector">
+                <select id="languageSelect">
+                    <option value="he">עברית</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <h1>מערכת תקיעות שופר מתקדמת</h1>
+            <p class="subtitle">ניתוח אמיתי של תקיעות שופר עם צלילים ריאליסטיים</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number">12</div>
+                <div class="stat-label">תרגולים</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">9</div>
+                <div class="stat-label">הצלחות</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">5</div>
+                <div class="stat-label">רצף</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">92%</div>
+                <div class="stat-label">שיא</div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="practice">תרגול</div>
+            <div class="tab" data-tab="record">הקלטה</div>
+            <div class="tab" data-tab="analysis">ניתוח</div>
+            <div class="tab" data-tab="liturgy">ליטורגיה</div>
+            <div class="tab" data-tab="results">תוצאות</div>
+            <div class="tab" data-tab="community">קהילה</div>
+        </div>
+        
+        <div class="tab-content active" id="practiceTab">
+            <div class="practice-container">
+                <h2>תרגול תקיעות שופר</h2>
+                <p>בחר רצף ותתאמן על התקיעות השונות</p>
+                
+                <div class="sequence-selector">
+                    <select id="sequenceSelect">
+                        <option value="tashtrat">תשרת (תקיעה-שברים-תרועה-תקיעה)</option>
+                        <option value="tashat">תשת (תקיעה-שברים-תקיעה)</option>
+                        <option value="tarat">תרת (תקיעה-תרועה-תקיעה)</option>
+                    </select>
+                </div>
+                
+                <div class="sounds-grid">
+                    <div class="sound-btn" data-sound="tekiah">
+                        <i class="fas fa-volume-up"></i>
+                        תקיעה
+                    </div>
+                    <div class="sound-btn" data-sound="shevarim">
+                        <i class="fas fa-volume-up"></i>
+                        שברים
+                    </div>
+                    <div class="sound-btn" data-sound="teruah">
+                        <i class="fas fa-volume-up"></i>
+                        תרועה
+                    </div>
+                    <div class="sound-btn" data-sound="tekiah-gedolah">
+                        <i class="fas fa-volume-up"></i>
+                        תקיעה גדולה
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="playSequence">
+                        <i class="fas fa-play"></i>
+                        נגן רצף
+                    </button>
+                    <button class="btn btn-secondary" id="stopButton">
+                        <i class="fas fa-stop"></i>
+                        עצור
+                    </button>
+                    <button class="btn btn-secondary" id="coachMode">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        מצב מאמן
+                    </button>
+                </div>
+                
+                <div class="coach-tips">
+                    <h3>טיפים מהמאמן:</h3>
+                    <p>הקפד על נשימה מהסרעפת לפני כל תקיעה. החזק את השופר בזווית של 45 מעלות והתחל בנשיפה עדינה.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="recordTab">
+            <div class="recording-container">
+                <h2>הקלטת תקיעות שופר</h2>
+                <p>הקלט את התקיעות שלך וקבל משוב מיידי</p>
+                
+                <div class="visualization" id="visualization">
+                    <!-- ויזואליזציה של הקול תופיע כאן -->
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="startRecording">
+                        <i class="fas fa-record-vinyl"></i>
+                        התחל הקלטה
+                    </button>
+                    <button class="btn btn-secondary" id="stopRecording" disabled>
+                        <i class="fas fa-stop"></i>
+                        עצור הקלטה
+                    </button>
+                </div>
+                
+                <div class="volume-control">
+                    <i class="fas fa-volume-down"></i>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="70">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="analysisTab">
+            <div class="practice-container">
+                <h2>ניתוח תקיעות שופר</h2>
+                <p>בצע הקלטה כדי לראות ניתוח מפורט של התקיעות שלך</p>
+                
+                <div style="text-align: center; padding: 40px;">
+                    <i class="fas fa-chart-bar" style="font-size: 60px; color: #4ca1af; margin-bottom: 20px;"></i>
+                    <p>הנתונים יופיעו כאן לאחר ההקלטה</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="liturgyTab">
+            <div class="practice-container">
+                <h2>ליטורגיה ותפילות</h2>
+                <p>תפילות ונוסחים לימי החג</p>
+                
+                <div style="margin-top: 20px;">
+                    <h3>תפילת התוקע:</h3>
+                    <p style="margin-top: 10px;">יהי רצון מלפניך ה' אלוקינו ואלוקי אבותינו, שתברך את כל עם ישראל, ותשמע קול שופרינו...</p>
+                    
+                    <h3 style="margin-top: 20px;">ברכות התקיעה:</h3>
+                    <p style="margin-top: 10px;">ברוך אתה ה'... אשר קידשנו במצוותיו וציוונו לשמוע קול שופר.</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 מערכת תקיעות שופר מתקדמת. כל הזכויות שמורות.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ניהול לשוניות
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // הסרת מחלקה active מכל הלשוניות
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    // הוספת מחלקה active ללשונית הנבחרת
+                    tab.classList.add('active');
+                    document.getElementById(`${tabId}Tab`).classList.add('active');
+                });
+            });
+            
+            // ניהול נגינת צלילים
+            const soundButtons = document.querySelectorAll('.sound-btn');
+            let currentSound = null;
+            
+            // יצירת AudioContext לצלילים
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const audioContext = new AudioContext();
+            
+            // פונקציה ליצירת צליל שופר
+            function createShofarSound(type, duration) {
+                if (currentSound) {
+                    currentSound.stop();
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                // הגדרת פרמטרים לפי סוג הצליל
+                let frequency = 415;
+                let harmonics = [0.6, 0.3, 0.15, 0.08];
+                
+                if (type === 'shevarim') {
+                    frequency = 380;
+                    harmonics = [0.7, 0.4, 0.2, 0.1];
+                } else if (type === 'teruah') {
+                    frequency = 450;
+                    harmonics = [0.5, 0.25, 0.12, 0.06];
+                } else if (type === 'tekiah-gedolah') {
+                    frequency = 415;
+                    harmonics = [0.65, 0.35, 0.18, 0.09];
+                }
+                
+                // יצירת צליל מורכב עם הרמוניות
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                
+                // חיבור לאאודיו
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // התחלת הנגינה
+                oscillator.start();
+                
+                // עצירת הנגינה לאחר הזמן שנקבע
+                setTimeout(() => {
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                    setTimeout(() => oscillator.stop(), 500);
+                }, duration);
+                
+                return oscillator;
+            }
+            
+            // הוספת מאזינים לכפתורי הצלילים
+            soundButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const soundType = button.getAttribute('data-sound');
+                    
+                    // הסרת active מכל הכפתורים
+                    soundButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // הוספת active לכפתור הנוכחי
+                    button.classList.add('active');
+                    
+                    // קביעת משך הצליל לפי הסוג
+                    let duration = 3000; // 3 שניות כברירת מחדל
+                    if (soundType === 'shevarim') duration = 1800;
+                    if (soundType === 'teruah') duration = 900;
+                    if (soundType === 'tekiah-gedolah') duration = 5000;
+                    
+                    // נגינת הצליל
+                    currentSound = createShofarSound(soundType, duration);
+                });
+            });
+            
+            // כפתור נגינת רצף
+            document.getElementById('playSequence').addEventListener('click', function() {
+                const sequenceType = document.getElementById('sequenceSelect').value;
+                
+                // נגינת הרצף לפי הסוג שנבחר
+                if (sequenceType === 'tashtrat') {
+                    playSequence(['tekiah', 'shevarim', 'teruah', 'tekiah-gedolah']);
+                } else if (sequenceType === 'tashat') {
+                    playSequence(['tekiah', 'shevarim', 'tekiah-gedolah']);
+                } else if (sequenceType === 'tarat') {
+                    playSequence(['tekiah', 'teruah', 'tekiah-gedolah']);
+                }
+            });
+            
+            // פונקציה לנגינת רצף צלילים
+            function playSequence(sounds) {
+                let delay = 0;
+                
+                sounds.forEach((sound, index) => {
+                    setTimeout(() => {
+                        // הדגשת הכפתור הנוכחי
+                        soundButtons.forEach(btn => btn.classList.remove('active'));
+                        document.querySelector(`[data-sound="${sound}"]`).classList.add('active');
+                        
+                        // נגינת הצליל
+                        let duration = 3000;
+                        if (sound === 'shevarim') duration = 1800;
+                        if (sound === 'teruah') duration = 900;
+                        if (sound === 'tekiah-gedolah') duration = 5000;
+                        
+                        currentSound = createShofarSound(sound, duration);
+                    }, delay);
+                    
+                    // הוספת זמן המתנה בין הצלילים
+                    delay += (sound === 'tekiah-gedolah') ? 5000 : 3000;
+                    delay += 500; // הפסקה קצרה בין הצלילים
+                });
+                
+                // איפוס הכפתורים לאחר סיום הרצף
+                setTimeout(() => {
+                    soundButtons.forEach(btn => btn.classList.remove('active'));
+                }, delay);
+            }
+            
+            // כפתור עצירה
+            document.getElementById('stopButton').addEventListener('click', function() {
+                if (currentSound) {
+                    currentSound.stop();
+                    currentSound = null;
+                }
+                
+                // הסרת הדגשה מכל הכפתורים
+                soundButtons.forEach(btn => btn.classList.remove('active'));
+            });
+            
+            // ניהול הקלטה
+            const startRecordingBtn = document.getElementById('startRecording');
+            const stopRecordingBtn = document.getElementById('stopRecording');
+            
+            startRecordingBtn.addEventListener('click', function() {
+                startRecordingBtn.disabled = true;
+                stopRecordingBtn.disabled = false;
+                
+                // הדמיית התחלת הקלטה
+                simulateRecording();
+            });
+            
+            stopRecordingBtn.addEventListener('click', function() {
+                startRecordingBtn.disabled = false;
+                stopRecordingBtn.disabled = true;
+                
+                // הדמיית עצירת הקלטה
+                stopRecording();
+            });
+            
+            // פונקציה להדמיית הקלטה
+            function simulateRecording() {
+                const visualization = document.getElementById('visualization');
+                visualization.innerHTML = '';
+                
+                // יצירת קנבס לוויזואליזציה
+                const canvas = document.createElement('canvas');
+                canvas.width = visualization.clientWidth;
+                canvas.height = visualization.clientHeight;
+                visualization.appendChild(canvas);
+                
+                const ctx = canvas.getContext('2d');
+                
+                // אנימציה של ויזואליזציית קול
+                let animationId;
+                
+                function draw() {
+                    ctx.fillStyle = '#2c3e50';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    const time = Date.now() / 1000;
+                    const centerY = canvas.height / 2;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, centerY);
+                    
+                    for (let x = 0; x < canvas.width; x++) {
+                        const y = centerY + Math.sin(x / 20 + time) * 50 * Math.random();
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    ctx.strokeStyle = '#4ca1af';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    animationId = requestAnimationFrame(draw);
+                }
+                
+                draw();
+                
+                // שמירת ה-animationId להפסקה בהמשך
+                visualization.animationId = animationId;
+            }
+            
+            // פונקציה להפסקת ההקלטה
+            function stopRecording() {
+                if (visualization.animationId) {
+                    cancelAnimationFrame(visualization.animationId);
+                }
+                
+                // הדמיית ניתוח לאחר ההקלטה
+                setTimeout(() => {
+                    alert('ההקלטה הושלמה! מעבירים לניתוח...');
+                    document.querySelector('[data-tab="analysis"]').click();
+                }, 1000);
+            }
+            
+            // שליטה בעוצמת הקול
+            const volumeSlider = document.getElementById('volumeSlider');
+            volumeSlider.addEventListener('input', function() {
+                // עדכון עוצמת הקול (בפועל יש לחבר ל-Web Audio API)
+                console.log('עוצמת קול: ' + this.value + '%');
+            });
+            
+            // בחירת שפה
+            const languageSelect = document.getElementById('languageSelect');
+            languageSelect.addEventListener('change', function() {
+                if (this.value === 'en') {
+                    alert('System language changed to English');
+                } else {
+                    alert('שפת המערכת שונתה לעברית');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
